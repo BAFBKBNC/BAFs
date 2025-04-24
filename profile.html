@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile - SY BAF</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <style>
     :root {
       --bg: #f2f2f2;
@@ -69,6 +70,7 @@
       border: 3px solid var(--profile-border);
       object-fit: cover;
       margin-bottom: 15px;
+      cursor: pointer;
     }
 
     .name {
@@ -131,7 +133,7 @@
     .info-value {
       font-size: 16px;
       font-weight: 500;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     .back-button {
@@ -195,6 +197,21 @@
       background-color: var(--highlight);
       margin-top: 10px;
     }
+
+    #cropSection {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #cropImage {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    #uploadInput {
+      display: none;
+    }
   </style>
 </head>
 <body data-theme="light">
@@ -215,7 +232,7 @@
   <div class="top-bar">
     <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
     <h1>Profile</h1>
-    <div style="width:24px;"></div> <!-- spacer -->
+    <div style="width:24px;"></div>
   </div>
 
   <div class="profile-container">
@@ -224,43 +241,36 @@
     <div class="role" id="roleText">Role</div>
 
     <div class="stats">
-      <div>
-        <div class="number" id="confessCount">--</div>
-        <div class="label">Confesses</div>
-      </div>
-      <div>
-        <div class="number" id="rollNo">--</div>
-        <div class="label">Roll No.</div>
-      </div>
-      <div>
-        <div class="number" id="classTotal">127</div>
-        <div class="label">Class Total</div>
-      </div>
+      <div><div class="number" id="confessCount">--</div><div class="label">Confesses</div></div>
+      <div><div class="number" id="rollNo">--</div><div class="label">Roll No.</div></div>
+      <div><div class="number" id="classTotal">127</div><div class="label">Class Total</div></div>
     </div>
 
     <div class="info-section">
-      <div class="info-box">
-        <div class="info-title">Student ID</div>
-        <div class="info-value" id="studentId">--</div>
-      </div>
-      <div class="info-box">
-        <div class="info-title">Mobile</div>
-        <div class="info-value" id="mobile">--</div>
-      </div>
-      <div class="info-box">
-        <div class="info-title">Email</div>
-        <div class="info-value" id="email">--</div>
-      </div>
+      <div class="info-box"><div class="info-title">Student ID</div><div class="info-value" id="studentId">--</div></div>
+      <div class="info-box"><div class="info-title">Mobile</div><div class="info-value" id="mobile">--</div></div>
+      <div class="info-box"><div class="info-title">Email</div><div class="info-value" id="email">--</div></div>
     </div>
 
     <button class="back-button" onclick="history.back()">← Go Back</button>
   </div>
 
+  <!-- Hidden upload + cropper -->
+  <input type="file" id="uploadInput" accept="image/*" onchange="showCropper(event)">
+  <div id="cropSection">
+    <img id="cropImage" />
+    <br>
+    <button onclick="uploadCroppedImage()" style="margin-top:10px;">Save Profile Picture</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk'; // Replace securely
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let cropper;
 
     function getCookie(name) {
       const value = `; ${document.cookie}`;
@@ -274,8 +284,7 @@
 
     function toggleTheme() {
       const body = document.body;
-      const current = body.getAttribute('data-theme');
-      const newTheme = current === 'light' ? 'dark' : 'light';
+      const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       body.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
     }
@@ -285,16 +294,12 @@
       window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
     }
 
-    window.onload = function () {
+    window.onload = async function () {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
 
       const roll = getCookie("roll");
-      if (!roll) {
-        window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
-        return;
-      }
-
+      if (!roll) return window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
       loadProfile(roll);
     };
 
@@ -315,10 +320,47 @@
         document.getElementById("email").textContent = data.MAIL || "-";
         document.getElementById("confessCount").textContent = data.confesses || "0";
       } else {
-        console.error("Supabase error:", error);
+        console.error("Error:", error);
       }
     }
-  </script>
 
+    document.getElementById("profilePic").addEventListener("click", () => {
+      document.getElementById("uploadInput").click();
+    });
+
+    function showCropper(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const image = document.getElementById("cropImage");
+      image.src = URL.createObjectURL(file);
+      document.getElementById("cropSection").style.display = "block";
+
+      image.onload = () => {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1 });
+      };
+    }
+
+    async function uploadCroppedImage() {
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+      const fileName = `profile-${Date.now()}.jpg`;
+
+      const { error: uploadError } = await client.storage
+        .from('profile-pics')
+        .upload(fileName, blob, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) return alert("Upload failed!");
+
+      const { publicURL } = client.storage.from('profile-pics').getPublicUrl(fileName);
+      const roll = getCookie("roll");
+
+      await client.from("BAF").update({ img: publicURL }).eq("ROLL", roll);
+      document.getElementById("profilePic").src = publicURL;
+      document.getElementById("cropSection").style.display = "none";
+      alert("Profile picture updated!");
+    }
+  </script>
 </body>
 </html>
