@@ -226,68 +226,69 @@
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
   </div>
 
-  <script>
-    const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ <script>
+  const SUPABASE_URL = 'https://your-project-id.supabase.co';
+  const SUPABASE_KEY = 'your-public-anon-key';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); // FIXED!
 
-    (function checkLogin() {
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-      }
-
-      window.getCookie = getCookie;
-
-      const roll = getCookie("roll");
-      if (!roll || isNaN(roll)) {
-        window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
-      }
-    })();
-
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
+  (function checkLogin() {
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    function openProfile() {
-      window.location.href = "https://mohitmali5489.github.io/Channels/profile.html";
-    }
+    window.getCookie = getCookie;
 
-    function logout() {
-      document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    const roll = getCookie("roll");
+    if (!roll || isNaN(roll)) {
       window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
     }
+  })();
 
-    function toggleTheme() {
-      const body = document.body;
-      const currentTheme = body.getAttribute('data-theme');
-      body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+  }
+
+  function openProfile() {
+    window.location.href = "https://mohitmali5489.github.io/Channels/profile.html";
+  }
+
+  function logout() {
+    document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
+  }
+
+  function toggleTheme() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+  }
+
+  async function fetchUserProfile() {
+    const roll = getCookie("roll");
+    if (!roll) return;
+
+    const { data, error } = await client
+      .from('students') // Change to your table name
+      .select('img, NAME')
+      .eq('roll', roll)
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return;
     }
 
-    async function fetchUserProfile() {
-      const roll = getCookie("roll");
-      if (!roll) return;
-
-      const { data, error } = await supabase
-        .from('BAF') // Change to your table name
-        .select('img, NAME')
-        .eq('roll', roll)
-        .single();
-
-      if (error) {
-        console.error('Supabase error:', error);
-        return;
-      }
-
-      if (data) {
-        document.getElementById('profilePic').src = data.img || 'default.jpg';
-        document.getElementById('nameButton').textContent = data.NAME || 'Student';
-      }
+    if (data) {
+      document.getElementById('profilePic').src = data.img || 'default.jpg';
+      document.getElementById('nameButton').textContent = data.NAME || 'Student';
     }
+  }
 
-    document.addEventListener('DOMContentLoaded', fetchUserProfile);
-  </script>
+  document.addEventListener('DOMContentLoaded', fetchUserProfile);
+</script>
+
 
 </body>
 </html>
