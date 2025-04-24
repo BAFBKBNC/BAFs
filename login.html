@@ -95,7 +95,7 @@
 
       try {
         const { data, error } = await supabase
-          .from('BAFs')
+          .from('BAF')
           .select('*')
           .eq('ROLL', roll)
           .eq('ID', password)
