@@ -68,12 +68,13 @@
   <div class="login-container">
     <h2>Welcome</h2>
     <input type="number" id="roll" placeholder="Roll Number" />
-    <input type="password" id="password" placeholder="Password" />
+    <input type="password" id="password" placeholder="Password (ID)" />
     <button onclick="login()">Login</button>
     <div id="error" class="error"></div>
   </div>
 
   <script>
+    // Replace with your own Supabase project credentials
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -86,10 +87,10 @@
 
     async function login() {
       const roll = parseInt(document.getElementById('roll').value.trim());
-      const password = document.getElementById('password').value.trim();
+      const password = parseInt(document.getElementById('password').value.trim());
 
-      if (isNaN(roll) || password === "") {
-        document.getElementById('error').textContent = "Please enter Roll No and Password";
+      if (isNaN(roll) || isNaN(password)) {
+        document.getElementById('error').textContent = "Please enter valid Roll No and Password";
         return;
       }
 
@@ -102,13 +103,15 @@
           .single();
 
         if (error || !data) {
+          console.error('Login error:', error);
           document.getElementById('error').textContent = "Invalid Roll No or Password";
-        } else {
-          setCookie("roll", roll, 1);
-          window.location.href = "https://bafbkbnc.github.io/BAFs/Home.html";
+          return;
         }
+
+        setCookie("roll", roll, 1);
+        window.location.href = "https://mohitmali5489.github.io/Channels/home.html";
       } catch (e) {
-        console.error("Login error:", e);
+        console.error("Unexpected error:", e);
         document.getElementById('error').textContent = "Could not connect to server.";
       }
     }
