@@ -227,8 +227,8 @@
   </div>
 
  <script>
-  const SUPABASE_URL = 'https://your-project-id.supabase.co';
-  const SUPABASE_KEY = 'your-public-anon-key';
+  const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); // FIXED!
 
   (function checkLogin() {
@@ -270,7 +270,7 @@
     if (!roll) return;
 
     const { data, error } = await client
-      .from('students') // Change to your table name
+      .from('BAF') // Change to your table name
       .select('img, NAME')
       .eq('roll', roll)
       .single();
