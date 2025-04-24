@@ -272,7 +272,7 @@
     const { data, error } = await client
       .from('BAF') // Change to your table name
       .select('img, NAME')
-      .eq('roll', roll)
+      .eq('ROLL', roll)
       .single();
 
     if (error) {
