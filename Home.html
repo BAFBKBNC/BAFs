@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SY-BAF</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     :root {
       --bg: #f2f2f2;
@@ -207,7 +208,7 @@
   <div class="container">
     <div class="button-group">
       <button>Anonymous</button>
-      <button>Mr. Mohit Mali</button>
+      <button id="nameButton">Loading...</button>
     </div>
 
     <div class="input-bar">
@@ -225,40 +226,68 @@
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
   </div>
 
- <script>
-  // Redirect to login if "roll" cookie is not set or invalid
-  (function checkLogin() {
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
+  <script>
+    const SUPABASE_URL = 'https://your-project-id.supabase.co';
+    const SUPABASE_KEY = 'your-public-anon-key';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    (function checkLogin() {
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+      }
+
+      window.getCookie = getCookie;
+
+      const roll = getCookie("roll");
+      if (!roll || isNaN(roll)) {
+        window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
+      }
+    })();
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
     }
 
-    const roll = getCookie("roll");
-    if (!roll || isNaN(roll)) {
+    function openProfile() {
+      window.location.href = "https://mohitmali5489.github.io/Channels/profile.html";
+    }
+
+    function logout() {
+      document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
     }
-  })();
 
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-  }
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+    }
 
-  function openProfile() {
-    window.location.href = "https://mohitmali5489.github.io/Channels/profile.html";
-  }
+    async function fetchUserProfile() {
+      const roll = getCookie("roll");
+      if (!roll) return;
 
-  function logout() {
-    document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
-  }
+      const { data, error } = await supabase
+        .from('students') // Change to your table name
+        .select('img, NAME')
+        .eq('roll', roll)
+        .single();
 
-  function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme');
-    body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
-  }
-</script>
+      if (error) {
+        console.error('Supabase error:', error);
+        return;
+      }
+
+      if (data) {
+        document.getElementById('profilePic').src = data.img || 'default.jpg';
+        document.getElementById('nameButton').textContent = data.NAME || 'Student';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUserProfile);
+  </script>
 
 </body>
 </html>
