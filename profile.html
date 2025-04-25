@@ -355,7 +355,10 @@
         .from('profile-pics')
         .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
-      if (uploadError) return alert("Upload failed!");
+    if (uploadError) {
+  console.error("Upload Error:", uploadError);
+  return alert("Upload failed!");
+}
 
       const { publicURL } = client.storage.from('profile-pics').getPublicUrl(fileName);
       const roll = getCookie("roll");
