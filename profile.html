@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile - SY BAF</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <style>
     :root {
       --bg: #f2f2f2;
@@ -71,6 +70,25 @@
       object-fit: cover;
       margin-bottom: 15px;
       cursor: pointer;
+    }
+
+    .edit-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: var(--highlight);
+      color: white;
+      width: 28px;
+      height: 28px;
+      font-size: 20px;
+      border-radius: 50%;
+      line-height: 28px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid var(--profile-border);
+      transform: translate(25%, 25%);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      user-select: none;
     }
 
     .name {
@@ -197,21 +215,6 @@
       background-color: var(--highlight);
       margin-top: 10px;
     }
-
-    #cropSection {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-
-    #cropImage {
-      max-width: 100%;
-      border-radius: 8px;
-    }
-
-    #uploadInput {
-      display: none;
-    }
   </style>
 </head>
 <body data-theme="light">
@@ -236,7 +239,12 @@
   </div>
 
   <div class="profile-container">
-    <img src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-pic" id="profilePic">
+    <div style="position: relative; display: inline-block;">
+      <img src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-pic" id="profilePic">
+      <div class="edit-overlay">+</div>
+    </div>
+    <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
+
     <div class="name" id="studentName">Loading...</div>
     <div class="role" id="roleText">Role</div>
 
@@ -255,27 +263,20 @@
     <button class="back-button" onclick="history.back()">← Go Back</button>
   </div>
 
-  <!-- Hidden upload + cropper -->
-  <input type="file" id="uploadInput" accept="image/*" onchange="showCropper(event)">
-  <div id="cropSection">
-    <img id="cropImage" />
-    <br>
-    <button onclick="uploadCroppedImage()" style="margin-top:10px;">Save Profile Picture</button>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk'; // Replace securely
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let cropper;
+    let pressTimer;
+    const profilePic = document.getElementById("profilePic");
+    const overlay = document.querySelector(".edit-overlay");
 
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
+      if (parts.length === 2) return parts.pop().split(";").shift();
     }
 
     function toggleSidebar() {
@@ -293,15 +294,6 @@
       document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
     }
-
-    window.onload = async function () {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
-
-      const roll = getCookie("roll");
-      if (!roll) return window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
-      loadProfile(roll);
-    };
 
     async function loadProfile(roll) {
       const { data, error } = await client
@@ -324,32 +316,44 @@
       }
     }
 
-    document.getElementById("profilePic").addEventListener("click", () => {
-      document.getElementById("uploadInput").click();
-    });
+    function setupImageEvents() {
+      const viewImage = () => {
+        const imgUrl = profilePic.src;
+        window.open(imgUrl, "_blank");
+      };
 
-    function showCropper(event) {
+      const onPressStart = () => {
+        pressTimer = setTimeout(viewImage, 600);
+      };
+
+      const onPressEnd = () => {
+        clearTimeout(pressTimer);
+      };
+
+      profilePic.addEventListener("mousedown", onPressStart);
+      profilePic.addEventListener("mouseup", onPressEnd);
+      profilePic.addEventListener("mouseleave", onPressEnd);
+
+      profilePic.addEventListener("touchstart", onPressStart);
+      profilePic.addEventListener("touchend", onPressEnd);
+
+      profilePic.addEventListener("click", () => {
+        document.getElementById("uploadInput").click();
+      });
+
+      overlay.addEventListener("click", () => {
+        document.getElementById("uploadInput").click();
+      });
+    }
+
+    async function changeProfilePicture(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const image = document.getElementById("cropImage");
-      image.src = URL.createObjectURL(file);
-      document.getElementById("cropSection").style.display = "block";
-
-      image.onload = () => {
-        if (cropper) cropper.destroy();
-        cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1 });
-      };
-    }
-
-    async function uploadCroppedImage() {
-      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
       const fileName = `profile-${Date.now()}.jpg`;
-
       const { error: uploadError } = await client.storage
         .from('profile-pics')
-        .upload(fileName, blob, { cacheControl: '3600', upsert: true });
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
       if (uploadError) return alert("Upload failed!");
 
@@ -358,9 +362,19 @@
 
       await client.from("BAF").update({ img: publicURL }).eq("ROLL", roll);
       document.getElementById("profilePic").src = publicURL;
-      document.getElementById("cropSection").style.display = "none";
       alert("Profile picture updated!");
     }
+
+    window.onload = async function () {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
+
+      const roll = getCookie("roll");
+      if (!roll) return window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
+
+      await loadProfile(roll);
+      setupImageEvents();
+    };
   </script>
 </body>
 </html>
