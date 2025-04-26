@@ -229,8 +229,8 @@
 
   <div class="container">
     <div class="button-group">
-      <button>Anonymous</button>
-      <button id="nameButton">Loading...</button>
+     <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
+<button class="name-button" onclick="selectName(this)">Loading...</button>
     </div>
 
     <div class="input-bar">
@@ -291,6 +291,11 @@ function toggleTheme() {
   body.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
 }
+  function selectName(buttonElement) {
+  document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
+  buttonElement.classList.add('selected-name-button');
+}
+
 
 (function loadTheme() {
   const savedTheme = localStorage.getItem('theme');
@@ -388,6 +393,75 @@ data.forEach(confession => {
 
   if (hasUserConfession) {
     removeDiv.style.display = 'block'; // Show remove button if user has confession
+  }
+}
+
+
+async function addConfession() {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error(sessionError.message);
+    return;
+  }
+
+  // Get roll from cookie (assuming it's stored in session)
+  const roll = sessionData?.session?.user?.user_metadata?.roll;
+  if (!roll) {
+    alert('Roll number not found!');
+    return;
+  }
+
+  // Get name from selected button
+  const selectedName = document.querySelector('.selected-name-button').innerText; // Add 'selected-name-button' class dynamically when button selected
+
+  // Get message from textbox
+  const messageInput = document.getElementById('messageInput').value.trim();
+  if (messageInput === '') {
+    alert('Please write something!');
+    return;
+  }
+
+  // Fetch tick and pic from BAF table
+  const { data: bafData, error: bafError } = await supabase
+    .from('BAF')
+    .select('tick, pic')
+    .eq('roll', roll)
+    .single();
+
+  if (bafError) {
+    console.error(bafError.message);
+    return;
+  }
+
+  let tick = bafData?.tick || 'none';
+  let pic = bafData?.pic || '';
+
+  // If selected Anonymous, override pic with Anonymous pic
+  if (selectedName.toLowerCase() === 'anonymous') {
+    pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+  }
+
+  // Insert into confessions table
+  const { error: insertError } = await supabase
+    .from('confessions')
+    .insert([
+      {
+        roll: roll,
+        c_name: selectedName,
+        message: messageInput,
+        tick: tick,
+        pic: pic
+      }
+    ]);
+
+  if (insertError) {
+    console.error(insertError.message);
+    alert('Failed to post confession.');
+  } else {
+    alert('Confession posted successfully!');
+    document.getElementById('messageInput').value = ''; // Clear input
+    // Optionally reload confessions list
+    fetchConfessions();
   }
 }
 
