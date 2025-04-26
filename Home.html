@@ -238,7 +238,7 @@
       <button>➤</button>
     </div>
 
-    <div class="remove_div">
+    <div class="remove_div" id="removeDiv" style="display:none;">
     <button class="remove-my-confession" onclick="removeMyConfession()">Remove my confession</button>
     </div>
 
@@ -327,7 +327,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchConfessions() {
   const confessionList = document.getElementById('confession-list');
+  const removeDiv = document.getElementById('removeDiv');
   confessionList.innerHTML = '';
+  removeDiv.style.display = 'none'; // Hide remove button by default
+
+  const roll = getCookie("roll");
 
   const { data, error } = await client
     .from('confessions')
@@ -344,7 +348,13 @@ async function fetchConfessions() {
     return;
   }
 
+  let hasUserConfession = false;
+
   data.forEach(confession => {
+    if (confession.roll == roll) {
+      hasUserConfession = true;
+    }
+
     const confessionCard = document.createElement('div');
     confessionCard.style = `
       background: var(--card);
@@ -377,6 +387,10 @@ async function fetchConfessions() {
 
     confessionList.appendChild(confessionCard);
   });
+
+  if (hasUserConfession) {
+    removeDiv.style.display = 'block'; // Show remove button if user has confession
+  }
 }
 
 async function removeMyConfession() {
