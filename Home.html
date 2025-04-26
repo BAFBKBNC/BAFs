@@ -197,6 +197,29 @@
     .loading, .reload-btn {
       display: none;
     }
+    .name-button {
+  background-color: var(--card);
+  color: var(--text);
+  border: 2px solid var(--text);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.name-button:hover {
+  background-color: var(--highlight);
+  color: white;
+  border-color: var(--highlight);
+}
+
+.selected-name-button {
+  background-color: var(--highlight);
+  color: white;
+  border-color: var(--highlight);
+}
+
 
     @media (max-width: 600px) {
       .input-bar input {
@@ -230,7 +253,7 @@
   <div class="container">
     <div class="button-group">
      <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
-<button class="name-button" onclick="selectName(this)">Loading...</button>
+<button class="name-button" onclick="selectName(this)" id="nameButton">Loading...</button>
     </div>
 
     <div class="input-bar">
@@ -291,10 +314,16 @@ function toggleTheme() {
   body.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
 }
-  function selectName(buttonElement) {
-  document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
+ function selectName(buttonElement) {
+  // Remove 'selected-name-button' class from all name buttons
+  document.querySelectorAll('.name-button').forEach(btn => {
+    btn.classList.remove('selected-name-button');
+  });
+
+  // Add 'selected-name-button' class to the clicked button
   buttonElement.classList.add('selected-name-button');
 }
+
 
 
 (function loadTheme() {
