@@ -229,7 +229,7 @@
  <script>
   const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); // FIXED!
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   (function checkLogin() {
     function getCookie(name) {
@@ -259,26 +259,26 @@
     window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
   }
 
-   function toggleTheme() {
-      const body = document.body;
-      const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    }
-(function loadTheme() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    document.body.setAttribute('data-theme', savedTheme);
+  function toggleTheme() {
+    const body = document.body;
+    const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
   }
-})();
+  
+  (function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+    }
+  })();
 
-   
   async function fetchUserProfile() {
     const roll = getCookie("roll");
     if (!roll) return;
 
     const { data, error } = await client
-      .from('BAF') // Change to your table name
+      .from('BAF')
       .select('img, NAME')
       .eq('ROLL', roll)
       .single();
@@ -295,6 +295,128 @@
   }
 
   document.addEventListener('DOMContentLoaded', fetchUserProfile);
+
+  async function fetchConfessions() {
+    const loading = document.getElementById('loading');
+    const confessionList = document.getElementById('confession-list');
+    const reloadContainer = document.getElementById('reloadContainer');
+    const currentRoll = getCookie('roll');
+
+    loading.style.display = 'block';
+    confessionList.innerHTML = '';
+    reloadContainer.style.display = 'none';
+
+    let { data, error } = await client
+      .from('confessions')
+      .select('*')
+      .order('id', { ascending: false });
+
+    loading.style.display = 'none';
+
+    if (error) {
+      console.error('Error fetching confessions:', error);
+      reloadContainer.style.display = 'block';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      confessionList.innerHTML = '<p style="text-align:center;">No confessions yet!</p>';
+      return;
+    }
+
+    data.forEach(confession => {
+      const card = document.createElement('div');
+      card.style.backgroundColor = 'var(--card)';
+      card.style.margin = '10px 0';
+      card.style.padding = '15px';
+      card.style.borderRadius = '8px';
+      card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+
+      const profileRow = document.createElement('div');
+      profileRow.style.display = 'flex';
+      profileRow.style.alignItems = 'center';
+      profileRow.style.gap = '10px';
+      profileRow.style.marginBottom = '10px';
+
+      const profilePic = document.createElement('img');
+      profilePic.src = confession.pic || 'default.jpg';
+      profilePic.alt = 'Confessor Pic';
+      profilePic.style.width = '40px';
+      profilePic.style.height = '40px';
+      profilePic.style.borderRadius = '50%';
+      profilePic.style.border = '2px solid var(--conf-border)';
+      profileRow.appendChild(profilePic);
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = confession.c_name || 'Anonymous';
+      nameSpan.style.fontWeight = '600';
+
+      if (confession.c_name && confession.c_name.toLowerCase() !== 'anonymous') {
+        const tickImg = document.createElement('img');
+        tickImg.style.width = '16px';
+        tickImg.style.height = '16px';
+        tickImg.style.marginLeft = '5px';
+        tickImg.style.verticalAlign = 'middle';
+        if (confession.tick === 'blue') {
+          tickImg.src = 'https://i.ibb.co/kgJpMCHr/blue.png';
+        } else if (confession.tick === 'silver') {
+          tickImg.src = 'https://i.ibb.co/gLJLF9Z2/silver.png';
+        } else if (confession.tick === 'gold') {
+          tickImg.src = 'https://i.ibb.co/Q2C7MrM/gold.png';
+        }
+        nameSpan.appendChild(tickImg);
+      }
+
+      profileRow.appendChild(nameSpan);
+
+      card.appendChild(profileRow);
+
+      const messageP = document.createElement('p');
+      messageP.textContent = confession.message || '';
+      messageP.style.marginTop = '0';
+      card.appendChild(messageP);
+
+      if (confession.roll == currentRoll) {
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove my confession';
+        removeBtn.style.marginTop = '10px';
+        removeBtn.style.backgroundColor = 'red';
+        removeBtn.style.color = 'white';
+        removeBtn.style.border = 'none';
+        removeBtn.style.padding = '8px 12px';
+        removeBtn.style.borderRadius = '5px';
+        removeBtn.style.cursor = 'pointer';
+
+        removeBtn.onclick = async () => {
+          const confirmDelete = confirm('Are you sure you want to delete your confession?');
+          if (!confirmDelete) return;
+
+          const { error: deleteError } = await client
+            .from('confessions')
+            .delete()
+            .eq('id', confession.id);
+
+          if (deleteError) {
+            alert('Failed to delete. Try again.');
+            console.error('Delete Error:', deleteError);
+          } else {
+            alert('Confession deleted!');
+            fetchConfessions();
+          }
+        };
+
+        card.appendChild(removeBtn);
+      }
+
+      confessionList.appendChild(card);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchConfessions();
+    document.querySelector('#reloadContainer button').onclick = fetchConfessions;
+  });
 </script>
+
 </body>
 </html>
