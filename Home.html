@@ -252,13 +252,13 @@
 
   <div class="container">
     <div class="button-group">
-     <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
+     <button class="selected-name-button" onclick="selectName(this)">Anonymous</button>
 <button class="name-button" onclick="selectName(this)" id="nameButton">Loading...</button>
     </div>
 
     <div class="input-bar">
       <input type="text" placeholder="🌟 What's on your mind?"/>
-      <button>➤</button>
+      <button onclick="addConfession()">➤</button>
     </div>
 
     <div class="remove_div" id="removeDiv" style="display:none;">
@@ -314,15 +314,19 @@ function toggleTheme() {
   body.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
 }
- function selectName(buttonElement) {
-  // Remove 'selected-name-button' class from all name buttons
+function selectName(button) {
+  // Remove 'selected-name-button' class from all buttons
   document.querySelectorAll('.name-button').forEach(btn => {
     btn.classList.remove('selected-name-button');
   });
 
   // Add 'selected-name-button' class to the clicked button
-  buttonElement.classList.add('selected-name-button');
+  button.classList.add('selected-name-button');
+
+  // Update the selected name (important for inserting into Supabase later)
+  selectedName = button.textContent.trim();
 }
+
 
 
 
