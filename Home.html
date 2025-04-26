@@ -309,7 +309,7 @@
     let { data, error } = await client
       .from('confessions')
       .select('*')
-      .order('id', { ascending: false });
+      .order('roll', { ascending: false });
 
     loading.style.display = 'none';
 
@@ -394,7 +394,8 @@
           const { error: deleteError } = await client
             .from('confessions')
             .delete()
-            .eq('id', confession.id);
+            .eq('roll', confession.roll)
+            .eq('message', confession.message);
 
           if (deleteError) {
             alert('Failed to delete. Try again.');
