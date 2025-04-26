@@ -166,6 +166,24 @@
       cursor: pointer;
     }
 
+    .remove-my-confession {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      width: 100%;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+
+    .confession-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+    }
+
     .encrypted {
       text-align: center;
       font-size: 12px;
@@ -184,6 +202,7 @@
     }
   </style>
 </head>
+
 <body data-theme="light">
 
   <div class="sidebar" id="sidebar">
@@ -216,7 +235,10 @@
       <button>➤</button>
     </div>
 
-    <h3 style="text-align:center">College Confessions</h3>
+    <button class="remove-my-confession" onclick="removeMyConfession()">Remove my confession</button>
+
+    <h3 style="text-align:center;">College Confessions</h3>
+
     <div class="loading" id="loading">Loading confessions...</div>
     <div class="reload-btn" id="reloadContainer">
       <button>Reload Confessions</button>
@@ -226,200 +248,151 @@
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
   </div>
 
- <script>
-  const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  (function checkLogin() {
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
-    window.getCookie = getCookie;
-
-    const roll = getCookie("roll");
-    if (!roll || isNaN(roll)) {
-      window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
-    }
-  })();
-
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
+(function checkLogin() {
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
   }
+  window.getCookie = getCookie;
 
-  function openProfile() {
-    window.location.href = "https://bafbkbnc.github.io/BAFs/profile.html";
-  }
-
-  function logout() {
-    document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  const roll = getCookie("roll");
+  if (!roll || isNaN(roll)) {
     window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
   }
+})();
 
-  function toggleTheme() {
-    const body = document.body;
-    const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('active');
+}
+
+function openProfile() {
+  window.location.href = "https://bafbkbnc.github.io/BAFs/profile.html";
+}
+
+function logout() {
+  document.cookie = "roll=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+}
+
+(function loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.body.setAttribute('data-theme', savedTheme);
   }
-  
-  (function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.body.setAttribute('data-theme', savedTheme);
-    }
-  })();
+})();
 
-  async function fetchUserProfile() {
-    const roll = getCookie("roll");
-    if (!roll) return;
+async function fetchUserProfile() {
+  const roll = getCookie("roll");
+  if (!roll) return;
 
-    const { data, error } = await client
-      .from('BAF')
-      .select('img, NAME')
-      .eq('ROLL', roll)
-      .single();
+  const { data, error } = await client
+    .from('BAF')
+    .select('img, NAME')
+    .eq('ROLL', roll)
+    .single();
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return;
-    }
-
-    if (data) {
-      document.getElementById('profilePic').src = data.img || 'default.jpg';
-      document.getElementById('nameButton').textContent = data.NAME || 'Student';
-    }
+  if (error) {
+    console.error('Supabase error:', error);
+    return;
   }
 
-  document.addEventListener('DOMContentLoaded', fetchUserProfile);
+  if (data) {
+    document.getElementById('profilePic').src = data.img || 'default.jpg';
+    document.getElementById('nameButton').textContent = data.NAME || 'Student';
+  }
+}
 
-  async function fetchConfessions() {
-    const loading = document.getElementById('loading');
-    const confessionList = document.getElementById('confession-list');
-    const reloadContainer = document.getElementById('reloadContainer');
-    const currentRoll = getCookie('roll');
+document.addEventListener('DOMContentLoaded', () => {
+  fetchUserProfile();
+  fetchConfessions();
+});
 
-    loading.style.display = 'block';
-    confessionList.innerHTML = '';
-    reloadContainer.style.display = 'none';
+async function fetchConfessions() {
+  const confessionList = document.getElementById('confession-list');
+  confessionList.innerHTML = '';
 
-    let { data, error } = await client
-      .from('confessions')
-      .select('*')
-      .order('roll', { ascending: false });
-    console.log('Data from Supabase:', data); // 👈 ADD THIS
-  console.log('Error from Supabase:', error); // 👈 ADD THIS
+  const { data, error } = await client
+    .from('confessions')
+    .select('*');
 
+  if (error) {
+    console.error('Error fetching confessions:', error);
+    confessionList.innerHTML = '<p style="text-align:center;color:gray;">Error loading confessions!</p>';
+    return;
+  }
 
-    loading.style.display = 'none';
+  if (!data || data.length === 0) {
+    confessionList.innerHTML = '<p style="text-align:center;color:gray;">No confessions yet!</p>';
+    return;
+  }
 
-    if (error) {
-      console.error('Error fetching confessions:', error);
-      reloadContainer.style.display = 'block';
-      return;
-    }
+  data.forEach(confession => {
+    const confessionCard = document.createElement('div');
+    confessionCard.style = `
+      background: var(--card);
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    `;
 
-    if (!data || data.length === 0) {
-      confessionList.innerHTML = '<p style="text-align:center;">No confessions yet!</p>';
-      return;
-    }
-
-    data.forEach(confession => {
-      const card = document.createElement('div');
-      card.style.backgroundColor = 'var(--card)';
-      card.style.margin = '10px 0';
-      card.style.padding = '15px';
-      card.style.borderRadius = '8px';
-      card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-
-      const profileRow = document.createElement('div');
-      profileRow.style.display = 'flex';
-      profileRow.style.alignItems = 'center';
-      profileRow.style.gap = '10px';
-      profileRow.style.marginBottom = '10px';
-
-      const profilePic = document.createElement('img');
-      profilePic.src = confession.pic || 'default.jpg';
-      profilePic.alt = 'Confessor Pic';
-      profilePic.style.width = '40px';
-      profilePic.style.height = '40px';
-      profilePic.style.borderRadius = '50%';
-      profilePic.style.border = '2px solid var(--conf-border)';
-      profileRow.appendChild(profilePic);
-
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = confession.c_name || 'Anonymous';
-      nameSpan.style.fontWeight = '600';
-
-      if (confession.c_name && confession.c_name.toLowerCase() !== 'anonymous') {
-        const tickImg = document.createElement('img');
-        tickImg.style.width = '16px';
-        tickImg.style.height = '16px';
-        tickImg.style.marginLeft = '5px';
-        tickImg.style.verticalAlign = 'middle';
-        if (confession.tick === 'blue') {
-          tickImg.src = 'https://i.ibb.co/kgJpMCHr/blue.png';
-        } else if (confession.tick === 'silver') {
-          tickImg.src = 'https://i.ibb.co/gLJLF9Z2/silver.png';
-        } else if (confession.tick === 'gold') {
-          tickImg.src = 'https://i.ibb.co/Q2C7MrM/gold.png';
-        }
-        nameSpan.appendChild(tickImg);
+    let tickIcon = '';
+    if (confession.c_name.toLowerCase() !== 'anonymous') {
+      if (confession.tick === 'blue') {
+        tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" style="width:14px;height:14px;">';
+      } else if (confession.tick === 'silver') {
+        tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" style="width:14px;height:14px;">';
+      } else if (confession.tick === 'gold') {
+        tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" style="width:14px;height:14px;">';
       }
+    }
 
-      profileRow.appendChild(nameSpan);
+    confessionCard.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="${confession.pic}" style="width:40px;height:40px;border-radius:50%;border:1px solid var(--profile-border);">
+        <div>
+          <div class="confession-name">${confession.c_name} ${tickIcon}</div>
+          <p style="margin:5px 0;">${confession.message}</p>
+        </div>
+      </div>
+    `;
 
-      card.appendChild(profileRow);
-
-      const messageP = document.createElement('p');
-      messageP.textContent = confession.message || '';
-      messageP.style.marginTop = '0';
-      card.appendChild(messageP);
-
-      if (confession.roll == currentRoll) {
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = 'Remove my confession';
-        removeBtn.style.marginTop = '10px';
-        removeBtn.style.backgroundColor = 'red';
-        removeBtn.style.color = 'white';
-        removeBtn.style.border = 'none';
-        removeBtn.style.padding = '8px 12px';
-        removeBtn.style.borderRadius = '5px';
-        removeBtn.style.cursor = 'pointer';
-
-        removeBtn.onclick = async () => {
-          const confirmDelete = confirm('Are you sure you want to delete your confession?');
-          if (!confirmDelete) return;
-
-          const { error: deleteError } = await client
-            .from('confessions')
-            .delete()
-            .eq('roll', confession.roll)
-            .eq('message', confession.message);
-
-          if (deleteError) {
-            alert('Failed to delete. Try again.');
-            console.error('Delete Error:', deleteError);
-          } else {
-            alert('Confession deleted!');
-            fetchConfessions();
-          }
-        };
-
-        card.appendChild(removeBtn);
-      }
-
-      confessionList.appendChild(card);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    fetchConfessions();
-    document.querySelector('#reloadContainer button').onclick = fetchConfessions;
+    confessionList.appendChild(confessionCard);
   });
+}
+
+async function removeMyConfession() {
+  const roll = getCookie("roll");
+  if (!roll) return;
+
+  if (!confirm('Are you sure you want to remove your confession?')) return;
+
+  const { error } = await client
+    .from('confessions')
+    .delete()
+    .eq('roll', roll);
+
+  if (error) {
+    console.error('Error deleting confession:', error);
+    alert('Failed to delete confession.');
+  } else {
+    alert('Confession removed!');
+    fetchConfessions();
+  }
+}
 </script>
 
 </body>
