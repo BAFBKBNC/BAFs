@@ -265,6 +265,12 @@
       body.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
     }
+(function loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.body.setAttribute('data-theme', savedTheme);
+  }
+})();
 
    
   async function fetchUserProfile() {
