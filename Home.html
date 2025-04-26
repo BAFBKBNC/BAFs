@@ -259,11 +259,12 @@
     window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
   }
 
-  function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme');
-    body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
-  }
+   function toggleTheme() {
+      const body = document.body;
+      const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    }
 
   async function fetchUserProfile() {
     const roll = getCookie("roll");
