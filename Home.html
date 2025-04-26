@@ -265,9 +265,7 @@
       body.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
     }
-window.onload = async function () {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
+
    
   async function fetchUserProfile() {
     const roll = getCookie("roll");
