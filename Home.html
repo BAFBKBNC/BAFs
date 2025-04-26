@@ -350,40 +350,41 @@ async function fetchConfessions() {
 
   let hasUserConfession = false;
 
- data.forEach(confession => {
-    if (confession.roll == roll) {
-      hasUserConfession = true;
+data.forEach(confession => {
+  const confessionCard = document.createElement('div');
+  confessionCard.style = `
+    background: var(--card);
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid var(--text);
+  `;
+
+  let tickIcon = '';
+  if (confession.c_name.toLowerCase() !== 'anonymous') {
+    if (confession.tick === 'blue') {
+      tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" style="width:16px;height:16px;">';
+    } else if (confession.tick === 'silver') {
+      tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" style="width:16px;height:16px;">';
+    } else if (confession.tick === 'gold') {
+      tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" style="width:16px;height:16px;">';
     }
+  }
 
-    const confessionCard = document.createElement('div');
-    confessionCard.style = `
-      background: var(--card);
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      text-align: center;
-    `;
+  confessionCard.innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <img src="${confession.pic}" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--profile-border);object-fit:cover;">
+      <div style="font-weight:bold; font-size:16px; display:flex; align-items:center; gap:5px;">
+        ${confession.c_name} ${tickIcon}
+      </div>
+    </div>
+    <p style="font-style:italic; font-size:15px; margin:0;">"${confession.message}"</p>
+  `;
 
-    let tickIcon = '';
-    if (confession.c_name.toLowerCase() !== 'anonymous') {
-      if (confession.tick === 'blue') {
-        tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" style="width:14px;height:14px;">';
-      } else if (confession.tick === 'silver') {
-        tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" style="width:14px;height:14px;">';
-      } else if (confession.tick === 'gold') {
-        tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" style="width:14px;height:14px;">';
-      }
-    }
-
-    confessionCard.innerHTML = `
-      <img src="${confession.pic}" style="width:50px;height:50px;border-radius:50%;border:2px solid var(--profile-border); margin-bottom:8px;">
-      <div class="confession-name" style="font-weight:bold; margin-bottom:10px;">${confession.c_name} ${tickIcon}</div>
-      <p style="font-style:italic; color:var(--text); font-size:15px;">"${confession.message}"</p>
-    `;
-
-    confessionList.appendChild(confessionCard);
+  confessionList.appendChild(confessionCard);
 });
+
 
   if (hasUserConfession) {
     removeDiv.style.display = 'block'; // Show remove button if user has confession
