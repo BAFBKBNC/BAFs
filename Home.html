@@ -350,7 +350,7 @@ async function fetchConfessions() {
 
   let hasUserConfession = false;
 
-  data.forEach(confession => {
+ data.forEach(confession => {
     if (confession.roll == roll) {
       hasUserConfession = true;
     }
@@ -362,6 +362,7 @@ async function fetchConfessions() {
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
     `;
 
     let tickIcon = '';
@@ -376,17 +377,13 @@ async function fetchConfessions() {
     }
 
     confessionCard.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;">
-        <img src="${confession.pic}" style="width:40px;height:40px;border-radius:50%;border:1px solid var(--profile-border);">
-        <div>
-          <div class="confession-name">${confession.c_name} ${tickIcon}</div>
-          <p style="margin:5px 0;">${confession.message}</p>
-        </div>
-      </div>
+      <img src="${confession.pic}" style="width:50px;height:50px;border-radius:50%;border:2px solid var(--profile-border); margin-bottom:8px;">
+      <div class="confession-name" style="font-weight:bold; margin-bottom:10px;">${confession.c_name} ${tickIcon}</div>
+      <p style="font-style:italic; color:var(--text); font-size:15px;">"${confession.message}"</p>
     `;
 
     confessionList.appendChild(confessionCard);
-  });
+});
 
   if (hasUserConfession) {
     removeDiv.style.display = 'block'; // Show remove button if user has confession
