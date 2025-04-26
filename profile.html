@@ -346,27 +346,44 @@
       });
     }
 
-    async function changeProfilePicture(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+  async function changeProfilePicture(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-      const fileName = `profile-${Date.now()}.jpg`;
-      const { error: uploadError } = await client.storage
-        .from('profile-pics')
-        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+  const fileName = `profile-${Date.now()}.jpg`;
+  const { error: uploadError } = await client.storage
+    .from('profile-pics')
+    .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
-    if (uploadError) {
-  console.error("Upload Error:", uploadError);
-  return alert("Upload failed!");
+  if (uploadError) {
+    console.error("Upload Error:", uploadError);
+    return alert("Upload failed!");
+  }
+
+  const { publicURL } = client.storage.from('profile-pics').getPublicUrl(fileName);
+  const roll = getCookie("roll");
+
+  // 👇 Cast roll to a number before using in Supabase query
+  const rollNum = parseInt(roll);
+
+  if (isNaN(rollNum)) {
+    return alert("Invalid roll number.");
+  }
+
+  const { error: updateError } = await client
+    .from("BAF")
+    .update({ img: publicURL })
+    .eq("ROLL", rollNum);
+
+  if (updateError) {
+    console.error("Update Error:", updateError);
+    return alert("Failed to update profile picture.");
+  }
+
+  document.getElementById("profilePic").src = publicURL;
+  alert("Profile picture updated!");
 }
 
-      const { publicURL } = client.storage.from('profile-pics').getPublicUrl(fileName);
-      const roll = getCookie("roll");
-
-      await client.from("BAF").update({ img: publicURL }).eq("ROLL", roll);
-      document.getElementById("profilePic").src = publicURL;
-      alert("Profile picture updated!");
-    }
 
     window.onload = async function () {
       const savedTheme = localStorage.getItem('theme');
