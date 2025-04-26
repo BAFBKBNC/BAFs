@@ -310,6 +310,9 @@
       .from('confessions')
       .select('*')
       .order('roll', { ascending: false });
+    console.log('Data from Supabase:', data); // 👈 ADD THIS
+  console.log('Error from Supabase:', error); // 👈 ADD THIS
+
 
     loading.style.display = 'none';
 
