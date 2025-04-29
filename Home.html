@@ -22,19 +22,16 @@
       --profile-border: white;
       --conf-border: white;
     }
-
     * {
       box-sizing: border-box;
       transition: background-color 0.3s, color 0.3s;
     }
-
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       background-color: var(--bg);
       color: var(--text);
     }
-
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -45,19 +42,16 @@
       top: 0;
       z-index: 10;
     }
-
     .top-bar h1 {
       flex: 1;
       text-align: center;
       margin: 0;
       font-size: 20px;
     }
-
     .menu-toggle {
       font-size: 24px;
       cursor: pointer;
     }
-
     .profile-img {
       width: 36px;
       height: 36px;
@@ -65,7 +59,6 @@
       border: 2px solid var(--profile-border);
       cursor: pointer;
     }
-
     .sidebar {
       position: fixed;
       top: 0;
@@ -78,18 +71,15 @@
       transition: left 0.3s;
       z-index: 20;
     }
-
     .sidebar.active {
       left: 0;
     }
-
     .close-sidebar {
       text-align: right;
       font-size: 18px;
       cursor: pointer;
       margin-bottom: 20px;
     }
-
     .sidebar nav a {
       display: block;
       color: var(--text);
@@ -97,11 +87,9 @@
       padding: 10px 0;
       border-bottom: 1px solid rgba(0,0,0,0.1);
     }
-
     .sidebar nav a:hover {
       color: var(--highlight);
     }
-
     .logout, .theme-toggle {
       margin-top: 20px;
       background-color: red;
@@ -112,18 +100,15 @@
       width: 100%;
       cursor: pointer;
     }
-
     .theme-toggle {
       background-color: var(--highlight);
       margin-top: 10px;
     }
-
     .container {
       padding: 20px;
       max-width: 800px;
       margin: auto;
     }
-
     .button-group {
       display: flex;
       justify-content: center;
@@ -131,16 +116,26 @@
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
-    .button-group button {
+    .name-button {
       background-color: var(--card);
       color: var(--text);
-      border: 1px solid var(--text);
+      border: 2px solid var(--text);
       padding: 10px 16px;
       border-radius: 8px;
       cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
     }
-
+    .name-button:hover {
+      background-color: var(--highlight);
+      color: white;
+      border-color: var(--highlight);
+    }
+    .selected-name-button {
+      background-color: var(--highlight);
+      color: white;
+      border-color: var(--highlight);
+    }
     .input-bar {
       display: flex;
       background-color: var(--card);
@@ -148,7 +143,6 @@
       padding: 10px;
       margin-bottom: 15px;
     }
-
     .input-bar input {
       flex: 1;
       background: none;
@@ -157,7 +151,6 @@
       font-size: 14px;
       outline: none;
     }
-
     .input-bar button {
       background: none;
       border: none;
@@ -165,62 +158,25 @@
       color: var(--text);
       cursor: pointer;
     }
-
     .remove-my-confession {
       background-color: red;
       color: white;
       border: none;
       padding: 10px 20px;
-      border-radius: 6px; 
+      border-radius: 6px;
       cursor: pointer;
       margin: 10px 0;
     }
     .remove_div {
-    justify-content: center;
-    text-align: center;
+      justify-content: center;
+      text-align: center;
     }
-
-    .confession-name {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: bold;
-    }
-
     .encrypted {
       text-align: center;
       font-size: 12px;
       color: gray;
       margin: 20px 0;
     }
-
-    .loading, .reload-btn {
-      display: none;
-    }
-    .name-button {
-  background-color: var(--card);
-  color: var(--text);
-  border: 2px solid var(--text);
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.name-button:hover {
-  background-color: var(--highlight);
-  color: white;
-  border-color: var(--highlight);
-}
-
-.selected-name-button {
-  background-color: var(--highlight);
-  color: white;
-  border-color: var(--highlight);
-}
-
-
     @media (max-width: 600px) {
       .input-bar input {
         font-size: 12px;
@@ -228,7 +184,6 @@
     }
   </style>
 </head>
-
 <body data-theme="light">
 
   <div class="sidebar" id="sidebar">
@@ -252,25 +207,21 @@
 
   <div class="container">
     <div class="button-group">
-     <button class="selected-name-button" onclick="selectName(this)">Anonymous</button>
-<button class="name-button" onclick="selectName(this)" id="nameButton">Loading...</button>
+      <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
+      <button class="name-button" id="nameButton" onclick="selectName(this)">Loading...</button>
     </div>
 
     <div class="input-bar">
-      <input type="text" placeholder="🌟 What's on your mind?"/>
+      <input type="text" id="messageInput" placeholder="🌟 What's on your mind?"/>
       <button onclick="addConfession()">➤</button>
     </div>
 
     <div class="remove_div" id="removeDiv" style="display:none;">
-    <button class="remove-my-confession" onclick="removeMyConfession()">Remove my confession</button>
+      <button class="remove-my-confession" onclick="removeMyConfession()">Remove my confession</button>
     </div>
 
     <h3 style="text-align:center;">College Confessions</h3>
 
-    <div class="loading" id="loading">Loading confessions...</div>
-    <div class="reload-btn" id="reloadContainer">
-      <button>Reload Confessions</button>
-    </div>
     <div id="confession-list"></div>
 
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
@@ -278,17 +229,16 @@
 
 <script>
 const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Truncated for security
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-(function checkLogin() {
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
-  window.getCookie = getCookie;
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
+(function checkLogin() {
   const roll = getCookie("roll");
   if (!roll || isNaN(roll)) {
     window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
@@ -314,21 +264,6 @@ function toggleTheme() {
   body.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
 }
-function selectName(button) {
-  // Remove 'selected-name-button' class from all buttons
-  document.querySelectorAll('.name-button').forEach(btn => {
-    btn.classList.remove('selected-name-button');
-  });
-
-  // Add 'selected-name-button' class to the clicked button
-  button.classList.add('selected-name-button');
-
-  // Update the selected name (important for inserting into Supabase later)
-  selectedName = button.textContent.trim();
-}
-
-
-
 
 (function loadTheme() {
   const savedTheme = localStorage.getItem('theme');
@@ -336,6 +271,16 @@ function selectName(button) {
     document.body.setAttribute('data-theme', savedTheme);
   }
 })();
+
+let selectedName = "Anonymous";
+
+function selectName(button) {
+  document.querySelectorAll('.name-button').forEach(btn => {
+    btn.classList.remove('selected-name-button');
+  });
+  button.classList.add('selected-name-button');
+  selectedName = button.innerText.trim();
+}
 
 async function fetchUserProfile() {
   const roll = getCookie("roll");
@@ -354,146 +299,85 @@ async function fetchUserProfile() {
 
   if (data) {
     document.getElementById('profilePic').src = data.img || 'default.jpg';
-    document.getElementById('nameButton').textContent = data.NAME || 'Student';
+    document.getElementById('nameButton').innerText = data.NAME || 'Student';
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetchUserProfile();
-  fetchConfessions();
-});
-
 async function fetchConfessions() {
+  const roll = getCookie("roll");
   const confessionList = document.getElementById('confession-list');
   const removeDiv = document.getElementById('removeDiv');
+
   confessionList.innerHTML = '';
-  removeDiv.style.display = 'none'; // Hide remove button by default
+  removeDiv.style.display = 'none';
 
-  const roll = getCookie("roll");
+  const { data, error } = await client.from('confessions').select('*');
 
-  const { data, error } = await client
-    .from('confessions')
-    .select('*');
-
-  if (error) {
-    console.error('Error fetching confessions:', error);
+  if (error || !data) {
     confessionList.innerHTML = '<p style="text-align:center;color:gray;">Error loading confessions!</p>';
     return;
   }
 
-  if (!data || data.length === 0) {
-    confessionList.innerHTML = '<p style="text-align:center;color:gray;">No confessions yet!</p>';
-    return;
-  }
+  let userHasConfession = false;
 
-  let hasUserConfession = false;
+  data.forEach(conf => {
+    if (conf.roll === roll) userHasConfession = true;
 
-data.forEach(confession => {
-  const confessionCard = document.createElement('div');
-  confessionCard.style = `
-    background: var(--card);
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border: 1px solid var(--text);
-  `;
+    const card = document.createElement('div');
+    card.style = `background: var(--card); margin: 10px 0; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--text);`;
 
-  let tickIcon = '';
-  if (confession.c_name.toLowerCase() !== 'anonymous') {
-    if (confession.tick === 'blue') {
-      tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" style="width:16px;height:16px;">';
-    } else if (confession.tick === 'silver') {
-      tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" style="width:16px;height:16px;">';
-    } else if (confession.tick === 'gold') {
-      tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" style="width:16px;height:16px;">';
+    let tickIcon = '';
+    if (conf.c_name.toLowerCase() !== 'anonymous') {
+      if (conf.tick === 'blue') tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" width="16">';
+      else if (conf.tick === 'silver') tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" width="16">';
+      else if (conf.tick === 'gold') tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16">';
     }
-  }
 
-  confessionCard.innerHTML = `
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-      <img src="${confession.pic}" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--profile-border);object-fit:cover;">
-      <div style="font-weight:bold; font-size:16px; display:flex; align-items:center; gap:5px;">
-        ${confession.c_name} ${tickIcon}
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <img src="${conf.pic}" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--profile-border);object-fit:cover;">
+        <div style="font-weight:bold; font-size:16px;">${conf.c_name} ${tickIcon}</div>
       </div>
-    </div>
-    <p style="font-style:italic; font-size:15px; margin:0;">"${confession.message}"</p>
-  `;
+      <p style="font-style:italic; font-size:15px; margin:0;">"${conf.message}"</p>
+    `;
+    confessionList.appendChild(card);
+  });
 
-  confessionList.appendChild(confessionCard);
-});
-
-
-  if (hasUserConfession) {
-    removeDiv.style.display = 'block'; // Show remove button if user has confession
-  }
+  if (userHasConfession) removeDiv.style.display = 'block';
 }
 
-
 async function addConfession() {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError) {
-    console.error(sessionError.message);
+  const roll = getCookie("roll");
+  if (!roll) return;
+
+  const message = document.getElementById('messageInput').value.trim();
+  if (!message) {
+    alert("Please write something!");
     return;
   }
 
-  // Get roll from cookie (assuming it's stored in session)
-  const roll = sessionData?.session?.user?.user_metadata?.roll;
-  if (!roll) {
-    alert('Roll number not found!');
-    return;
-  }
+  const { data, error } = await client.from('BAF').select('tick, img').eq('ROLL', roll).single();
+  if (error || !data) return;
 
-  // Get name from selected button
-  const selectedName = document.querySelector('.selected-name-button').innerText; // Add 'selected-name-button' class dynamically when button selected
-
-  // Get message from textbox
-  const messageInput = document.getElementById('messageInput').value.trim();
-  if (messageInput === '') {
-    alert('Please write something!');
-    return;
-  }
-
-  // Fetch tick and pic from BAF table
-  const { data: bafData, error: bafError } = await supabase
-    .from('BAF')
-    .select('tick, pic')
-    .eq('roll', roll)
-    .single();
-
-  if (bafError) {
-    console.error(bafError.message);
-    return;
-  }
-
-  let tick = bafData?.tick || 'none';
-  let pic = bafData?.pic || '';
-
-  // If selected Anonymous, override pic with Anonymous pic
+  const tick = data.tick || '';
+  let pic = data.img || '';
   if (selectedName.toLowerCase() === 'anonymous') {
     pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
   }
 
-  // Insert into confessions table
-  const { error: insertError } = await supabase
-    .from('confessions')
-    .insert([
-      {
-        roll: roll,
-        c_name: selectedName,
-        message: messageInput,
-        tick: tick,
-        pic: pic
-      }
-    ]);
+  const { error: insertError } = await client.from('confessions').insert([{
+    roll: roll,
+    c_name: selectedName,
+    message: message,
+    tick: tick,
+    pic: pic
+  }]);
 
   if (insertError) {
-    console.error(insertError.message);
-    alert('Failed to post confession.');
+    alert("Failed to post confession.");
   } else {
-    alert('Confession posted successfully!');
-    document.getElementById('messageInput').value = ''; // Clear input
-    // Optionally reload confessions list
+    alert("Confession posted!");
+    document.getElementById('messageInput').value = '';
     fetchConfessions();
   }
 }
@@ -502,21 +386,17 @@ async function removeMyConfession() {
   const roll = getCookie("roll");
   if (!roll) return;
 
-  if (!confirm('Are you sure you want to remove your confession?')) return;
+  if (!confirm("Are you sure you want to delete your confession?")) return;
 
-  const { error } = await client
-    .from('confessions')
-    .delete()
-    .eq('roll', roll);
-
-  if (error) {
-    console.error('Error deleting confession:', error);
-    alert('Failed to delete confession.');
-  } else {
-    alert('Confession removed!');
-    fetchConfessions();
-  }
+  const { error } = await client.from('confessions').delete().eq('roll', roll);
+  if (error) alert("Delete failed.");
+  else fetchConfessions();
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchUserProfile();
+  fetchConfessions();
+});
 </script>
 
 </body>
