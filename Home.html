@@ -321,7 +321,7 @@ async function fetchConfessions() {
   let userHasConfession = false;
 
   data.forEach(conf => {
-    if (conf.roll === roll) userHasConfession = true;
+    if (conf.roll == roll) userHasConfession = true;
 
     const card = document.createElement('div');
     card.style = `background: var(--card); margin: 10px 0; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--text);`;
