@@ -379,7 +379,7 @@ async function addConfession() {
   if (upsertError) {
     alert("Failed to post confession.");
   } else {
-    alert("Confession posted or updated!");
+    alert("Confessed Successfully!");
     document.getElementById('messageInput').value = '';
     fetchConfessions();
   }
