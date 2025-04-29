@@ -343,9 +343,9 @@ async function fetchConfessions() {
     confessionList.appendChild(card);
   });
 
- if (hasUserConfession) {
-    removeDiv.style.display = 'block'; // Show remove button if user has confession
-  }
+ if (userHasConfession) {
+  removeDiv.style.display = 'block';
+}
 }
 
 async function addConfession() {
