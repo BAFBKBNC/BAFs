@@ -178,6 +178,34 @@
       color: gray;
       margin: 20px 0;
     }
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #1a1a1a;
+  color: white;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.close-btn {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
     @media (max-width: 600px) {
       .input-bar input {
         font-size: 12px;
@@ -282,7 +310,30 @@ function selectName(button) {
   button.classList.add('selected-name-button');
   selectedName = button.innerText.trim();
 }
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('tick-icon') && isMobile()) {
+    const title = e.target.getAttribute('data-title');
+    const description = e.target.getAttribute('data-description');
 
+    document.getElementById('tickTitle').textContent = title;
+    document.getElementById('tickDescription').textContent = description;
+    document.getElementById('tickModal').style.display = 'block';
+  }
+});
+
+// Close modal on click
+document.querySelector('.close-btn').onclick = function () {
+  document.getElementById('tickModal').style.display = 'none';
+};
+
+// Optional: Close modal on outside click
+window.onclick = function (event) {
+  if (event.target === document.getElementById('tickModal')) {
+    document.getElementById('tickModal').style.display = 'none';
+  }
+};
+
+  
 async function fetchUserProfile() {
   const roll = getCookie("roll");
   if (!roll) return;
@@ -328,13 +379,18 @@ async function fetchConfessions() {
     card.style = `background: var(--card); margin: 10px 0; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--text);`;
 
     let tickIcon = '';
-    if (conf.tick === 'blue') {
-  tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" width="16" title="Verified User">';
-} else if (conf.tick === 'silver') {
-  tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" width="16" title="Special User">';
-} else if (conf.tick === 'gold') {
-  tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Admin User">';
+  function isMobile() {
+  return window.innerWidth <= 768;
 }
+
+if (conf.tick === 'blue') {
+  tickIcon = `<img src="https://i.ibb.co/kgJpMCHr/blue.png" width="16" class="tick-icon" data-title="Verified User" data-description="This user is verified as a genuine account.">`;
+} else if (conf.tick === 'silver') {
+  tickIcon = `<img src="https://i.ibb.co/gLJLF9Z2/silver.png" width="16" class="tick-icon" data-title="Special User" data-description="This user has special privileges or recognition.">`;
+} else if (conf.tick === 'gold') {
+  tickIcon = `<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" class="tick-icon" data-title="Admin User" data-description="This account is an admin-level user.">`;
+}
+
 
     card.innerHTML = `
   <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -408,6 +464,13 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchConfessions();
 });
 </script>
+<div id="tickModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h3 id="tickTitle"></h3>
+    <p id="tickDescription"></p>
+  </div>
+</div>
 
 </body>
 </html>
