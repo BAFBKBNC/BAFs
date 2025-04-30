@@ -134,7 +134,7 @@
           console.error("Login failed:", error);
           errorDiv.textContent = "Invalid Roll No or Password";
         } else {
-          setCookie("roll", roll, 1);
+          setCookie("roll", roll, 100);
           window.location.href = "https://bafbkbnc.github.io/BAFs/Home.html";
         }
       } catch (e) {
