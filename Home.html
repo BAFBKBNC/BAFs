@@ -328,11 +328,13 @@ async function fetchConfessions() {
     card.style = `background: var(--card); margin: 10px 0; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid var(--text);`;
 
     let tickIcon = '';
-    if (conf.c_name.toLowerCase() !== 'anonymous') {
-      if (conf.tick === 'blue') tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" width="16">';
-      else if (conf.tick === 'silver') tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" width="16">';
-      else if (conf.tick === 'gold') tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16">';
-    }
+    if (conf.tick === 'blue') {
+  tickIcon = '<img src="https://i.ibb.co/kgJpMCHr/blue.png" width="16" title="Verified User">';
+} else if (conf.tick === 'silver') {
+  tickIcon = '<img src="https://i.ibb.co/gLJLF9Z2/silver.png" width="16" title="Special User">';
+} else if (conf.tick === 'gold') {
+  tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Admin User">';
+}
 
     card.innerHTML = `
   <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
