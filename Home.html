@@ -310,30 +310,7 @@ function selectName(button) {
   button.classList.add('selected-name-button');
   selectedName = button.innerText.trim();
 }
-document.addEventListener('click', function (e) {
-  if (e.target.classList.contains('tick-icon') && isMobile()) {
-    const title = e.target.getAttribute('data-title');
-    const description = e.target.getAttribute('data-description');
 
-    document.getElementById('tickTitle').textContent = title;
-    document.getElementById('tickDescription').textContent = description;
-    document.getElementById('tickModal').style.display = 'block';
-  }
-});
-
-// Close modal on click
-document.querySelector('.close-btn').onclick = function () {
-  document.getElementById('tickModal').style.display = 'none';
-};
-
-// Optional: Close modal on outside click
-window.onclick = function (event) {
-  if (event.target === document.getElementById('tickModal')) {
-    document.getElementById('tickModal').style.display = 'none';
-  }
-};
-
-  
 async function fetchUserProfile() {
   const roll = getCookie("roll");
   if (!roll) return;
@@ -463,6 +440,30 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchUserProfile();
   fetchConfessions();
 });
+
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('tick-icon') && isMobile()) {
+    const title = e.target.getAttribute('data-title');
+    const description = e.target.getAttribute('data-description');
+
+    document.getElementById('tickTitle').textContent = title;
+    document.getElementById('tickDescription').textContent = description;
+    document.getElementById('tickModal').style.display = 'block';
+  }
+});
+
+// Close modal on click
+document.querySelector('.close-btn').onclick = function () {
+  document.getElementById('tickModal').style.display = 'none';
+};
+
+// Optional: Close modal on outside click
+window.onclick = function (event) {
+  if (event.target === document.getElementById('tickModal')) {
+    document.getElementById('tickModal').style.display = 'none';
+  }
+};
+
 </script>
 <div id="tickModal" class="modal">
   <div class="modal-content">
