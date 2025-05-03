@@ -71,25 +71,16 @@
       margin-bottom: 15px;
       cursor: pointer;
     }
-.edit-overlay {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: var(--card);
-  color: var(--highlight);
-  width: 32px;
-  height: 32px;
-  font-size: 22px;
-  border-radius: 50%;
-  line-height: 32px;
-  text-align: center;
-  cursor: pointer;
-  border: 2px solid var(--highlight);
-  transform: translate(30%, 30%);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  font-weight: bold;
-  user-select: none;
-}
+
+    .tick-icon {
+      width: 28px;
+      height: 28px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      transform: translate(-30%, 30%);
+      display: none;
+    }
 
     .name {
       font-size: 20px;
@@ -240,8 +231,8 @@
 
   <div class="profile-container">
     <div style="position: relative; display: inline-block;">
-      <img src="https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg" alt="Profile Picture" class="profile-pic" id="profilePic">
-      <div class="edit-overlay">+</div>
+      <img src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-pic" id="profilePic">
+      <img id="tickMark" class="tick-icon" src="" alt="Tick Mark">
     </div>
     <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
 
@@ -266,12 +257,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Shortened for security
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let pressTimer;
-    const profilePic = document.getElementById("profilePic");
-    const overlay = document.querySelector(".edit-overlay");
 
     function getCookie(name) {
       const value = `; ${document.cookie}`;
@@ -298,7 +285,7 @@
     async function loadProfile(roll) {
       const { data, error } = await client
         .from('BAF')
-        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses')
+        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses, tick')
         .eq('"ROLL"', roll)
         .single();
 
@@ -311,83 +298,67 @@
         document.getElementById("mobile").textContent = data.MOB || "-";
         document.getElementById("email").textContent = data.MAIL || "-";
         document.getElementById("confessCount").textContent = data.confesses || "0";
+
+        const tickMark = document.getElementById("tickMark");
+        if (data.tick === "blue") {
+          tickMark.src = "https://i.ibb.co/kgJpMCHr/blue.png";
+          tickMark.style.display = "block";
+        } else if (data.tick === "silver") {
+          tickMark.src = "https://i.ibb.co/gLJLF9Z2/silver.png";
+          tickMark.style.display = "block";
+        } else if (data.tick === "gold") {
+          tickMark.src = "https://i.ibb.co/Q2C7MrM/gold.png";
+          tickMark.style.display = "block";
+        } else {
+          tickMark.style.display = "none";
+        }
       } else {
         console.error("Error:", error);
       }
     }
 
     function setupImageEvents() {
-      const viewImage = () => {
-        const imgUrl = profilePic.src;
-        window.open(imgUrl, "_blank");
-      };
-
-      const onPressStart = () => {
-        pressTimer = setTimeout(viewImage, 600);
-      };
-
-      const onPressEnd = () => {
-        clearTimeout(pressTimer);
-      };
-
-      profilePic.addEventListener("mousedown", onPressStart);
-      profilePic.addEventListener("mouseup", onPressEnd);
-      profilePic.addEventListener("mouseleave", onPressEnd);
-
-      profilePic.addEventListener("touchstart", onPressStart);
-      profilePic.addEventListener("touchend", onPressEnd);
-
       profilePic.addEventListener("click", () => {
-        document.getElementById("uploadInput").click();
-      });
-
-      overlay.addEventListener("click", () => {
         document.getElementById("uploadInput").click();
       });
     }
 
- async function changeProfilePicture(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+    async function changeProfilePicture(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-  const fileName = `profile-${Date.now()}.jpg`;
+      const fileName = `profile-${Date.now()}.jpg`;
+      const { error: uploadError } = await client.storage
+        .from('profile-pics')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
-  // Upload the file
-  const { error: uploadError } = await client.storage
-    .from('profile-pics')
-    .upload(fileName, file, { cacheControl: '3600', upsert: true });
+      if (uploadError) {
+        console.error("Upload Error:", uploadError);
+        return alert("Upload failed!");
+      }
 
-  if (uploadError) {
-    console.error("Upload Error:", uploadError);
-    return alert("Upload failed!");
-  }
+      const { data, error } = client.storage.from('profile-pics').getPublicUrl(fileName);
+      if (error || !data || !data.publicUrl) {
+        console.error('Error getting public URL:', error);
+        return alert('Could not get public URL');
+      }
 
-  // Correctly get the public URL
-  const { data, error } = client.storage.from('profile-pics').getPublicUrl(fileName);
+      const publicURL = data.publicUrl;
+      const roll = getCookie("roll");
 
-  if (error || !data || !data.publicUrl) {
-    console.error('Error getting public URL:', error);
-    return alert('Could not get public URL');
-  }
+      const { error: updateError } = await client
+        .from("BAF")
+        .update({ img: publicURL })
+        .eq("ROLL", roll);
 
-  const publicURL = data.publicUrl;
-  const roll = getCookie("roll");
+      if (updateError) {
+        console.error("Update Error:", updateError);
+        return alert("Failed to update profile picture in database");
+      }
 
-  const { error: updateError } = await client
-    .from("BAF")
-    .update({ img: publicURL })
-    .eq("ROLL", roll);
-
-  if (updateError) {
-    console.error("Update Error:", updateError);
-    return alert("Failed to update profile picture in database");
-  }
-
-  document.getElementById("profilePic").src = publicURL;
-  alert("Profile picture updated!");
-}
-
-
+      document.getElementById("profilePic").src = publicURL;
+      alert("Profile picture updated!");
+    }
 
     window.onload = async function () {
       const savedTheme = localStorage.getItem('theme');
