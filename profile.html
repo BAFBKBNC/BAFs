@@ -72,18 +72,22 @@
       cursor: pointer;
     }
 
-   .tick-icon {
+ .tick-icon {
   width: 16px;
   height: 16px;
-  vertical-align: middle;
-  display: inline-block;
-  margin-left: 6px;
+  display: inline;
 }
 
+
     .name {
-      font-size: 20px;
-      font-weight: 600;
-    }
+  font-size: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 
     .role {
       font-size: 14px;
@@ -234,9 +238,9 @@
     </div>
     <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
 
-  <div class="name">
+  <div class="name" id="nameContainer">
   <span id="studentName">Loading...</span>
-  <img id="tickMark" class="tick-icon" src="" alt="Tick Mark" style="display:none;">
+  <img id="tickMark" class="tick-icon" src="" alt="Tick Mark" style="display: none;">
 </div>
 
     <div class="role" id="roleText">Role</div>
