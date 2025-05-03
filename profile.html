@@ -72,22 +72,19 @@
       cursor: pointer;
     }
 
- .tick-icon {
-  width: 16px;
-  height: 16px;
-  display: inline;
-}
-
-
     .name {
-  font-size: 20px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
 
+    .name img {
+      width: 18px;
+      height: 18px;
+    }
 
     .role {
       font-size: 14px;
@@ -233,16 +230,11 @@
 
   <div class="profile-container">
     <div style="position: relative; display: inline-block;">
-      <img src="https://via.placeholder.com/120" alt="Profile" class="profile-pic" id="profilePic">
-      
+      <img src="https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg" alt="Profile Picture" class="profile-pic" id="profilePic">
     </div>
     <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
 
-  <div class="name" id="nameContainer">
-  <span id="studentName">Loading...</span>
-  <img id="tickMark" class="tick-icon" src="" alt="Tick Mark" style="display: none;">
-</div>
-
+    <div class="name" id="studentName">Loading...</div>
     <div class="role" id="roleText">Role</div>
 
     <div class="stats">
@@ -263,7 +255,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk'; // Shortened for security
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function getCookie(name) {
@@ -296,7 +288,15 @@
         .single();
 
       if (data) {
-        document.getElementById("studentName").textContent = data.NAME || "Unknown";
+        const tickUrls = {
+          blue: "https://i.ibb.co/kgJpMCHr/blue.png",
+          silver: "https://i.ibb.co/gLJLF9Z2/silver.png",
+          gold: "https://i.ibb.co/Q2C7MrM/gold.png"
+        };
+
+        const tick = data.tick && tickUrls[data.tick.toLowerCase()] ? `<img src="${tickUrls[data.tick.toLowerCase()]}" alt="tick">` : "";
+
+        document.getElementById("studentName").innerHTML = `${data.NAME || "Unknown"} ${tick}`;
         document.getElementById("profilePic").src = data.img || "https://via.placeholder.com/120";
         document.getElementById("rollNo").textContent = data.ROLL || "-";
         document.getElementById("roleText").textContent = data.role || "Student";
@@ -304,26 +304,35 @@
         document.getElementById("mobile").textContent = data.MOB || "-";
         document.getElementById("email").textContent = data.MAIL || "-";
         document.getElementById("confessCount").textContent = data.confesses || "0";
-
-        const tickMark = document.getElementById("tickMark");
-        if (data.tick === "blue") {
-          tickMark.src = "https://i.ibb.co/kgJpMCHr/blue.png";
-          tickMark.style.display = "block";
-        } else if (data.tick === "silver") {
-          tickMark.src = "https://i.ibb.co/gLJLF9Z2/silver.png";
-          tickMark.style.display = "block";
-        } else if (data.tick === "gold") {
-          tickMark.src = "https://i.ibb.co/Q2C7MrM/gold.png";
-          tickMark.style.display = "block";
-        } else {
-          tickMark.style.display = "none";
-        }
       } else {
         console.error("Error:", error);
       }
     }
 
     function setupImageEvents() {
+      const profilePic = document.getElementById("profilePic");
+
+      const viewImage = () => {
+        const imgUrl = profilePic.src;
+        window.open(imgUrl, "_blank");
+      };
+
+      let pressTimer;
+
+      const onPressStart = () => {
+        pressTimer = setTimeout(viewImage, 600);
+      };
+
+      const onPressEnd = () => {
+        clearTimeout(pressTimer);
+      };
+
+      profilePic.addEventListener("mousedown", onPressStart);
+      profilePic.addEventListener("mouseup", onPressEnd);
+      profilePic.addEventListener("mouseleave", onPressEnd);
+      profilePic.addEventListener("touchstart", onPressStart);
+      profilePic.addEventListener("touchend", onPressEnd);
+
       profilePic.addEventListener("click", () => {
         document.getElementById("uploadInput").click();
       });
@@ -334,6 +343,7 @@
       if (!file) return;
 
       const fileName = `profile-${Date.now()}.jpg`;
+
       const { error: uploadError } = await client.storage
         .from('profile-pics')
         .upload(fileName, file, { cacheControl: '3600', upsert: true });
@@ -344,6 +354,7 @@
       }
 
       const { data, error } = client.storage.from('profile-pics').getPublicUrl(fileName);
+
       if (error || !data || !data.publicUrl) {
         console.error('Error getting public URL:', error);
         return alert('Could not get public URL');
