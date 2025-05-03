@@ -231,7 +231,7 @@
 
   <div class="profile-container">
     <div style="position: relative; display: inline-block;">
-      <img src="https://via.placeholder.com/120" alt="Profile Picture" class="profile-pic" id="profilePic">
+      <img src="https://via.placeholder.com/120" alt="Profile" class="profile-pic" id="profilePic">
       <img id="tickMark" class="tick-icon" src="" alt="Tick Mark">
     </div>
     <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
@@ -257,7 +257,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Shortened for security
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk'; // Shortened for security
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function getCookie(name) {
