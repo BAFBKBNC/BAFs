@@ -450,12 +450,10 @@ async function removeMyConfession() {
   const roll = getCookie("roll");
   if (!roll) return;
 
-  if (!confirm("Are you sure you want to delete your confession?")) return;
-
   const { error } = await client.from('confessions').delete().eq('roll', roll);
   if (error) showToast("Delete failed.");
   else {
-    showToast("Confession removed.");
+    showToast("Confession Removed.");
     fetchConfessions();
   }
 }
