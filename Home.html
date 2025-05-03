@@ -462,6 +462,13 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchUserProfile();
   fetchConfessions();
 });
+
+  // Auto-refresh confessions every 10 seconds
+setInterval(() => {
+  fetchConfessions();
+}, 10000);
+
+  
 </script>
 
 </body>
