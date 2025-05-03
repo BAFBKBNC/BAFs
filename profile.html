@@ -73,8 +73,8 @@
     }
 
     .tick-icon {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
     }
 
     .name {
@@ -231,7 +231,11 @@
     </div>
     <input type="file" id="uploadInput" accept="image/*" style="display: none" onchange="changeProfilePicture(event)">
 
-    <div class="name" id="studentName">Loading... <img id="tickMark" class="tick-icon" src="" alt="Tick Mark"></div>
+  <div class="name">
+  <span id="studentName">Loading...</span>
+  <img id="tickMark" class="tick-icon" src="" alt="Tick Mark" style="display:none;">
+</div>
+
     <div class="role" id="roleText">Role</div>
 
     <div class="stats">
