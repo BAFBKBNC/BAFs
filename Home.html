@@ -380,6 +380,10 @@ async function fetchConfessions() {
     } else if (conf.tick === 'gold') {
       tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Admin User">';
     }
+    else if (conf.tick === 'green') {
+      tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Official Channel">';
+    }
+   
 
     card.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
