@@ -381,9 +381,11 @@ async function fetchConfessions() {
       tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Admin User">';
     }
     else if (conf.tick === 'green') {
-      tickIcon = '<img src="https://i.ibb.co/Q2C7MrM/gold.png" width="16" title="Official Channel">';
+      tickIcon = '<img src="https://i.ibb.co/SXGL4Nq0/green.png" width="16" title="Official Channel">';
     }
-   
+   else if (conf.tick === 'black') {
+      tickIcon = '<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Official Channel">';
+    }
 
     card.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -423,6 +425,7 @@ async function addConfession() {
   let pic = data.img || '';
   if (selectedName.toLowerCase() === 'anonymous') {
     pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+    tick = 'black';
   }
 
   const { error: upsertError } = await client.from('confessions').upsert([{
