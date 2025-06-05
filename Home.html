@@ -522,11 +522,33 @@ async function removeMyConfession() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetchUserProfile();
-  fetchConfessions();
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchUserProfile();
+  await fetchConfessions();
+  
+  // Insert data into logs table on page load
+  const roll = getCookie("roll");
+  if (roll) {
+    const name = document.getElementById('nameButton').innerText || 'Unknown';
+    const currentTime = new Date().toISOString(); // Get current time in ISO format
+
+    const { error } = await client.from('logs').insert([
+      {
+        roll: parseInt(roll), // Ensure roll is an integer
+        Name: name,
+        time: currentTime
+      }
+    ]);
+
+    if (error) {
+      console.error('Error inserting log:', error);
+    } else {
+      console.log('Log successfully added:', { roll, Name: name, time: currentTime });
+    }
+  }
 });
 
+  
   // Auto-refresh confessions every 10 seconds
 setInterval(() => {
   fetchConfessions();
