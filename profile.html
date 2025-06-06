@@ -247,6 +247,7 @@
       <div class="info-box"><div class="info-title">Student ID</div><div class="info-value" id="studentId">--</div></div>
       <div class="info-box"><div class="info-title">Mobile</div><div class="info-value" id="mobile">--</div></div>
       <div class="info-box"><div class="info-title">Email</div><div class="info-value" id="email">--</div></div>
+       <div class="info-box"><div class="info-title">Instagram ID</div><div class="info-value" id="insta">--</div></div>
     </div>
 
     <button class="back-button" onclick="history.back()">← Go Back</button>
@@ -283,7 +284,7 @@
     async function loadProfile(roll) {
       const { data, error } = await client
         .from('BAF')
-        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses, tick')
+        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses, tick, INSTA')
         .eq('"ROLL"', roll)
         .single();
 
@@ -304,6 +305,7 @@
         document.getElementById("mobile").textContent = data.MOB || "-";
         document.getElementById("email").textContent = data.MAIL || "-";
         document.getElementById("confessCount").textContent = data.confesses || "0";
+        document.getElementById("insta").textContent = data.INSTA || "-";
       } else {
         console.error("Error:", error);
       }
