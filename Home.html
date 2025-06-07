@@ -442,10 +442,8 @@ async function fetchConfessions() {
       tickIcon = '<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous Confess">';
     }
 
-const formattedMessage = conf.message?.replace(/(\r\n|\r|\n)/g, "<br>")
-
-console.log("Original:", conf.message);
-console.log("Formatted:", formattedMessage);
+const realNewlines = conf.message.replace(/\\n/g, '\n');
+const formattedMessage = realNewlines.replace(/\n/g, "<br>");
 
 card.innerHTML = `
   <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -457,6 +455,7 @@ card.innerHTML = `
   </div>
   <p style="font-style:italic; font-size:15px; margin:0;">"${formattedMessage}"</p>
 `;
+
 confessionList.appendChild(card);
 
   });
