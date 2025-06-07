@@ -442,7 +442,7 @@ async function fetchConfessions() {
       tickIcon = '<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous Confess">';
     }
 
-   const formattedMessage = conf.message.replace(/\n/g, "<br>");
+ const formattedMessage = conf.message?.replace(/\n/g, "<br>");
 
 card.innerHTML = `
   <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
