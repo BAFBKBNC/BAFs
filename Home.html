@@ -442,17 +442,20 @@ async function fetchConfessions() {
       tickIcon = '<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous Confess">';
     }
 
-    card.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-        <img src="${conf.pic}" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--profile-border);object-fit:cover;">
-        <div style="display: flex; align-items: center; gap: 6px; font-weight:bold; font-size:16px;">
-          <span>${conf.c_name}</span>
-          ${tickIcon}
-        </div>
-      </div>
-      <p style="font-style:italic; font-size:15px; margin:0;">"${conf.message}"</p>
-    `;
-    confessionList.appendChild(card);
+   const formattedMessage = conf.message.replace(/\n/g, "<br>");
+
+card.innerHTML = `
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+    <img src="${conf.pic}" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--profile-border);object-fit:cover;">
+    <div style="display: flex; align-items: center; gap: 6px; font-weight:bold; font-size:16px;">
+      <span>${conf.c_name}</span>
+      ${tickIcon}
+    </div>
+  </div>
+  <p style="font-style:italic; font-size:15px; margin:0;">"${formattedMessage}"</p>
+`;
+confessionList.appendChild(card);
+
   });
 
   if (userHasConfession) {
