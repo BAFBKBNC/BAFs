@@ -475,7 +475,7 @@ async function fetchUserProfile() {
 
   const { data, error } = await client
     .from('BAF')
-    .select('id, img, NAME') // Fetch ID from Supabase
+    .select('ID, img, NAME') // Fetch ID from Supabase
     .eq('ROLL', roll)
     .single();
 
@@ -489,7 +489,7 @@ async function fetchUserProfile() {
     document.getElementById('nameButton').innerText = data.NAME || 'Student';
 
     // Store ID globally so theme links can use it
-    window.userId = data.id;
+    window.userId = data.ID;
     const currentTheme = document.body.getAttribute('data-theme') || 'light';
     updateAllThemeLinks(currentTheme, window.userId);
   }
