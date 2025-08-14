@@ -437,23 +437,27 @@ function toggleTheme() {
   updateAllThemeLinks(newTheme);
 }
 
-(function loadTheme() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    document.body.setAttribute('data-theme', savedTheme);
-    updateAllThemeLinks(savedTheme);
-  }
-})();
+function toggleTheme() {
+  const body = document.body;
+  const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
 
-  function updateAllThemeLinks(theme) {
+  updateAllThemeLinks(newTheme, window.userId); // Pass stored ID
+}
+
+ function updateAllThemeLinks(theme, id) {
   const links = document.querySelectorAll('.theme-link');
+
   links.forEach(link => {
     const url = new URL(link.href);
     url.searchParams.set('theme', theme);
+    if (id) {
+      url.searchParams.set('id', id); // ID from Supabase
+    }
     link.href = url.toString();
   });
 }
-
 
 let selectedName = "Anonymous";
 
@@ -471,7 +475,7 @@ async function fetchUserProfile() {
 
   const { data, error } = await client
     .from('BAF')
-    .select('img, NAME')
+    .select('id, img, NAME') // Fetch ID from Supabase
     .eq('ROLL', roll)
     .single();
 
@@ -483,8 +487,14 @@ async function fetchUserProfile() {
   if (data) {
     document.getElementById('profilePic').src = data.img || 'default.jpg';
     document.getElementById('nameButton').innerText = data.NAME || 'Student';
+
+    // Store ID globally so theme links can use it
+    window.userId = data.id;
+    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+    updateAllThemeLinks(currentTheme, window.userId);
   }
 }
+
 
 async function fetchConfessions() {
   const roll = getCookie("roll");
