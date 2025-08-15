@@ -208,21 +208,23 @@
 
     /* QR Section Styles */
     .qr-section {
-      margin-top: 30px;
+      margin-top: 12px;
       background-color: var(--card);
-      padding: 20px;
+      padding: 15px;
       border-radius: 8px;
-      text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;
     }
 
     .qr-section h3 {
       margin-bottom: 10px;
-      font-size: 16px;
+      font-size: 14px;
+      text-align: center;
     }
 
     #qrcode {
-      display: inline-block;
+      display: flex;
+      justify-content: center;
       padding: 10px;
       background: white;
       border-radius: 8px;
@@ -231,6 +233,7 @@
     .qr-note {
       font-size: 12px;
       color: gray;
+      text-align: center;
       margin-top: 8px;
     }
   </style>
@@ -275,14 +278,12 @@
       <div class="info-box"><div class="info-title">Student ID</div><div class="info-value" id="studentId">--</div></div>
       <div class="info-box"><div class="info-title">Mobile</div><div class="info-value" id="mobile">--</div></div>
       <div class="info-box"><div class="info-title">Email</div><div class="info-value" id="email">--</div></div>
-      <div class="info-box"><div class="info-title">Instagram ID</div><div class="info-value" id="insta">--</div></div>
-    </div>
-
-    <!-- QR Code Section -->
-    <div class="qr-section">
-      <h3>Attendance QR Code</h3>
-      <div id="qrcode"></div>
-      <p class="qr-note">Scan this to mark your attendance</p>
+      <!-- QR Code Section inside info-section for equal width -->
+      <div class="qr-section">
+        <h3>Attendance QR Code</h3>
+        <div id="qrcode"></div>
+        <p class="qr-note">Scan this to mark your attendance</p>
+      </div>
     </div>
 
     <button class="back-button" onclick="history.back()">← Go Back</button>
@@ -320,7 +321,7 @@
     async function loadProfile(roll) {
       const { data, error } = await client
         .from('BAF')
-        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses, tick, INSTA')
+        .select('NAME, img, "ROLL", role, ID, MOB, MAIL, confesses, tick')
         .eq('"ROLL"', roll)
         .single();
 
@@ -341,7 +342,6 @@
         document.getElementById("mobile").textContent = data.MOB || "-";
         document.getElementById("email").textContent = data.MAIL || "-";
         document.getElementById("confessCount").textContent = data.confesses || "0";
-        document.getElementById("insta").textContent = data.INSTA || "-";
 
         // Generate QR code from Student ID
         if (data.ID) {
