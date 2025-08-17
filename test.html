@@ -556,7 +556,7 @@
       <img src="" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile"/>
       <div class="sidebar-user-info">
         <div id="sidebar-username">Loading...</div>
-        <div id="sidebar-user-roll">Roll No: ...</div>
+        <div id="sidebar-user-roll">Student ID: ...</div>
       </div>
     </div>
     <nav>
@@ -726,36 +726,38 @@
     
     // --- SUPABASE API CALLS ---
     async function fetchUserProfile() {
-        const roll = getCookie("roll");
-        if (!roll) return;
+    const roll = getCookie("roll");
+    if (!roll) return;
 
-        const { data, error } = await client
-            .from('BAF')
-            .select('ID, img, NAME, ROLL') // Fetch ROLL number as well
-            .eq('ROLL', roll)
-            .single();
+    // The select statement already includes 'ID', which is what we need.
+    const { data, error } = await client
+        .from('BAF')
+        .select('ID, img, NAME, ROLL') 
+        .eq('ROLL', roll)
+        .single();
 
-        if (error) {
-            console.error('Supabase error:', error);
-            return;
-        }
-
-        if (data) {
-            const profilePicUrl = data.img || 'default.jpg';
-            const userName = data.NAME || 'Student';
-            const userRoll = data.ROLL || 'N/A';
-            
-            document.getElementById('profilePic').src = profilePicUrl;
-            document.getElementById('sidebarProfilePic').src = profilePicUrl;
-            document.getElementById('nameButton').innerText = userName;
-            document.getElementById('sidebar-username').innerText = userName;
-            document.getElementById('sidebar-user-roll').innerText = `Roll No: ${userRoll}`;
-
-            window.userId = data.ID;
-            updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
-        }
+    if (error) {
+        console.error('Supabase error:', error);
+        return;
     }
 
+    if (data) {
+        const profilePicUrl = data.img || 'default.jpg';
+        const userName = data.NAME || 'Student';
+        const studentId = data.ID || 'N/A'; // Get the Student ID from the data
+
+        document.getElementById('profilePic').src = profilePicUrl;
+        document.getElementById('sidebarProfilePic').src = profilePicUrl;
+        document.getElementById('nameButton').innerText = userName;
+        document.getElementById('sidebar-username').innerText = userName;
+        
+        // This line now updates the correct element with the Student ID
+        document.getElementById('sidebar-user-id').innerText = `Student ID: ${studentId}`;
+
+        window.userId = data.ID;
+        updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
+    }
+}
     async function fetchConfessions() {
         const roll = getCookie("roll");
         const confessionList = document.getElementById('confession-list');
