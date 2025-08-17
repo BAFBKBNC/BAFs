@@ -759,10 +759,12 @@
     async function fetchConfessions() {
         const roll = getCookie("roll");
         const confessionList = document.getElementById('confession-list');
-        // Sort by creation time to show newest first. Requires 'created_at' column.
-        const { data, error } = await client.from('confessions').select('*').order('created_at', { ascending: false });
+        
+        // FIX: Removed .order() clause to prevent error if 'created_at' column doesn't exist.
+        const { data, error } = await client.from('confessions').select('*');
 
         if (error) {
+            console.error("Fetch Confessions Error:", error);
             confessionList.innerHTML = '<p style="text-align:center;color:gray;">Error loading confessions!</p>';
             return;
         }
@@ -823,7 +825,7 @@
 
         const { error: upsertError } = await client.from('confessions').upsert([{
             roll: roll, c_name: selectedName, message: message, tick: tick, pic: pic
-        }], { onConflict: ['roll'] }); // Ensured syntax matches original for reliability
+        }], { onConflict: ['roll'] });
 
         if (upsertError) {
             showToast("Failed to post confession.");
@@ -852,8 +854,15 @@
         const roll = getCookie("roll");
         if (roll) {
             const name = document.getElementById('nameButton').innerText;
-            if (name !== 'Loading...') {
-                await client.from('logs').insert([{ roll: parseInt(roll), Name: name }]);
+            if (name && name !== 'Loading...') {
+                // FIX: Added the 'time' field back into the insert object.
+                const currentTime = new Date().toISOString();
+                const { error } = await client.from('logs').insert([{ 
+                    roll: parseInt(roll), 
+                    Name: name,
+                    time: currentTime 
+                }]);
+                if (error) console.error("Log Error:", error);
             }
         }
     }
