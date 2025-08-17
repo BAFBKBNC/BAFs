@@ -200,7 +200,7 @@
         text-overflow: ellipsis;
     }
     
-    #sidebar-user-roll {
+    #sidebar-user-id {
         font-size: 14px;
         color: var(--text-secondary);
     }
@@ -551,15 +551,14 @@
   <div id="toast-container"></div>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-  <div class="sidebar-profile-card">
-  <img src="" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile"/>
-  <div class="sidebar-user-info">
-    <div id="sidebar-username">Loading...</div>
-    
-    <div id="sidebar-user-id">Student ID: ...</div>
-
-  </div>
-</div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-profile-card">
+      <img src="" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile"/>
+      <div class="sidebar-user-info">
+        <div id="sidebar-username">Loading...</div>
+        <div id="sidebar-user-id">Student ID: ...</div>
+      </div>
+    </div>
     <nav>
       <a href="#" onclick="location.reload()">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -727,43 +726,41 @@
     
     // --- SUPABASE API CALLS ---
     async function fetchUserProfile() {
-    const roll = getCookie("roll");
-    if (!roll) return;
+      const roll = getCookie("roll");
+      if (!roll) return;
 
-    // The select statement already includes 'ID', which is what we need.
-    const { data, error } = await client
-        .from('BAF')
-        .select('ID, img, NAME, ROLL') 
-        .eq('ROLL', roll)
-        .single();
+      const { data, error } = await client
+          .from('BAF')
+          .select('ID, img, NAME, ROLL') 
+          .eq('ROLL', roll)
+          .single();
 
-    if (error) {
-        console.error('Supabase error:', error);
-        return;
+      if (error) {
+          console.error('Supabase error:', error);
+          return;
+      }
+
+      if (data) {
+          const profilePicUrl = data.img || 'default.jpg';
+          const userName = data.NAME || 'Student';
+          const studentId = data.ID || 'N/A';
+
+          document.getElementById('profilePic').src = profilePicUrl;
+          document.getElementById('sidebarProfilePic').src = profilePicUrl;
+          document.getElementById('nameButton').innerText = userName;
+          document.getElementById('sidebar-username').innerText = userName;
+          
+          document.getElementById('sidebar-user-id').innerText = `Student ID: ${studentId}`;
+
+          window.userId = data.ID;
+          updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
+      }
     }
 
-    if (data) {
-        const profilePicUrl = data.img || 'default.jpg';
-        const userName = data.NAME || 'Student';
-        const studentId = data.ID || 'N/A'; // Get the Student ID from the data
-
-        document.getElementById('profilePic').src = profilePicUrl;
-        document.getElementById('sidebarProfilePic').src = profilePicUrl;
-        document.getElementById('nameButton').innerText = userName;
-        document.getElementById('sidebar-username').innerText = userName;
-        
-        // This line now updates the correct element with the Student ID
-        document.getElementById('sidebar-user-id').innerText = `Student ID: ${studentId}`;
-
-        window.userId = data.ID;
-        updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
-    }
-}
     async function fetchConfessions() {
         const roll = getCookie("roll");
         const confessionList = document.getElementById('confession-list');
         
-        // FIX: Removed .order() clause to prevent error if 'created_at' column doesn't exist.
         const { data, error } = await client.from('confessions').select('*');
 
         if (error) {
@@ -853,61 +850,45 @@
         }
     }
     
+    // FIX: Removed the duplicate logUserVisit function. This is the correct one for IST.
     async function logUserVisit() {
         const roll = getCookie("roll");
         if (roll) {
             const name = document.getElementById('nameButton').innerText;
             if (name && name !== 'Loading...') {
-                // FIX: Added the 'time' field back into the insert object.
-                const currentTime = new Date().toISOString();
+                
+                // Create a date object with the IST timezone
+                const now = new Date();
+                const options = {
+                    timeZone: 'Asia/Kolkata',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                };
+                
+                // Format the date parts according to IST
+                const formatter = new Intl.DateTimeFormat('en-CA', options);
+                const parts = formatter.formatToParts(now);
+                const dateParts = {};
+                parts.forEach(p => dateParts[p.type] = p.value);
+                
+                // Construct the final ISO-like string with the IST offset
+                const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
+
                 const { error } = await client.from('logs').insert([{ 
                     roll: parseInt(roll), 
                     Name: name,
-                    time: currentTime 
+                    time: istTimeString // Send the newly formatted IST string
                 }]);
                 if (error) console.error("Log Error:", error);
             }
         }
     }
-async function logUserVisit() {
-    const roll = getCookie("roll");
-    if (roll) {
-        const name = document.getElementById('nameButton').innerText;
-        if (name && name !== 'Loading...') {
-            
-            // Create a date object with the IST timezone
-            const now = new Date();
-            const options = {
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            
-            // Format the date parts according to IST
-            const formatter = new Intl.DateTimeFormat('en-CA', options);
-            const parts = formatter.formatToParts(now);
-            const dateParts = {};
-            parts.forEach(p => dateParts[p.type] = p.value);
-            
-            // Construct the final ISO-like string with the IST offset
-            const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
 
-            const { error } = await client.from('logs').insert([{ 
-                roll: parseInt(roll), 
-                Name: name,
-                time: istTimeString // Send the newly formatted IST string
-            }]);
-            if (error) console.error("Log Error:", error);
-        }
-    }
-}
-
-  
     // --- INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", async () => {
         (function checkLogin() {
