@@ -218,7 +218,7 @@
     }
   </style>
 </head>
-<body data-theme="light">
+<body>
 
   <!-- Toast Container -->
   <div id="toast-container"></div>
@@ -448,17 +448,10 @@ function toggleTheme() {
   const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   body.setAttribute('data-theme', newTheme);
   localStorage.setItem('theme', newTheme);
-  updateAllThemeLinks(newTheme);
+
+  updateAllThemeLinks(newTheme, window.userId); // keep links consistent
 }
 
-function toggleTheme() {
-  const body = document.body;
-  const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-  body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-
-  updateAllThemeLinks(newTheme, window.userId); // Pass stored ID
-}
 
  function updateAllThemeLinks(theme, id) {
   const links = document.querySelectorAll('.theme-link');
@@ -631,7 +624,18 @@ async function removeMyConfession() {
   }
 }
 
+  function applySavedTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+  if (window.userId) {
+    updateAllThemeLinks(savedTheme, window.userId);
+  }
+}
+
+  
+
 document.addEventListener("DOMContentLoaded", async () => {
+  applySavedTheme();
   await fetchUserProfile();
   await fetchConfessions();
   
