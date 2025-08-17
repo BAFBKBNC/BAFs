@@ -868,7 +868,45 @@
             }
         }
     }
+async function logUserVisit() {
+    const roll = getCookie("roll");
+    if (roll) {
+        const name = document.getElementById('nameButton').innerText;
+        if (name && name !== 'Loading...') {
+            
+            // Create a date object with the IST timezone
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            
+            // Format the date parts according to IST
+            const formatter = new Intl.DateTimeFormat('en-CA', options);
+            const parts = formatter.formatToParts(now);
+            const dateParts = {};
+            parts.forEach(p => dateParts[p.type] = p.value);
+            
+            // Construct the final ISO-like string with the IST offset
+            const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
 
+            const { error } = await client.from('logs').insert([{ 
+                roll: parseInt(roll), 
+                Name: name,
+                time: istTimeString // Send the newly formatted IST string
+            }]);
+            if (error) console.error("Log Error:", error);
+        }
+    }
+}
+
+  
     // --- INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", async () => {
         (function checkLogin() {
