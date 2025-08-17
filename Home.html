@@ -633,7 +633,7 @@ async function removeMyConfession() {
 
   function applySavedTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
-  document.body.setAttribute('data-theme', savedTheme);
+  document.documentElement.setAttribute('data-theme', savedTheme);
   if (window.userId) {
     updateAllThemeLinks(savedTheme, window.userId);
   }
