@@ -2,109 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Login - BAFs App</title>
+  <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+  
+  <script>
+    // This script runs early to prevent a "flash of the wrong theme."
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 
-    body {
+  <style>
+    /* 🎨 --- Color & Theme Variables (Consistent with other pages) --- 🎨 */
+    :root {
+      --primary-accent: #b84fff;
+      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
+      --danger-color: #ef5350;
+      --font-family: 'Inter', sans-serif;
+      
+      /* Light Theme */
+      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
+      --card-bg-light: rgba(255, 255, 255, 0.8);
+      --text-primary-light: #121212;
+      --text-secondary-light: #5f5f5f;
+      --border-color-light: #e0e0e0;
+      --shadow-light: 0 4px
+      15px rgba(0, 0, 0, 0.05);
+
+      /* Dark Theme */
+      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
+      --card-bg-dark: rgba(42, 42, 61, 0.8);
+      --text-primary-dark: #f0f0f0;
+      --text-secondary-dark: #a0a0b0;
+      --border-color-dark: #4a4a6a;
+      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    [data-theme="light"] {
+      --bg-gradient: var(--bg-gradient-light);
+      --card-bg: var(--card-bg-light);
+      --text-primary: var(--text-primary-light);
+      --text-secondary: var(--text-secondary-light);
+      --border-color: var(--border-color-light);
+      --shadow: var(--shadow-light);
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: var(--bg-gradient-dark);
+      --card-bg: var(--card-bg-dark);
+      --text-primary: var(--text-primary-dark);
+      --text-secondary: var(--text-secondary-dark);
+      --border-color: var(--border-color-dark);
+      --shadow: var(--shadow-dark);
+    }
+
+    /* 🧱 --- Base & Page Styles --- 🧱 */
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Space Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      color: var(--text-primary);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      transition: background-color 0.3s, color 0.3s;
+      padding: 20px;
     }
 
-    body.light-theme {
-      background-color: #f1f1f1;
-      color: #000;
-    }
-
-    body.dark-theme {
-      background-color: #1e1e2e;
-      color: white;
-    }
-
-    .login-container {
-      background-color: #ffffff;
-      padding: 40px 30px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      transition: background-color 0.3s;
-    }
-
-    body.dark-theme .login-container {
-      background-color: #2a2a3d;
-    }
-
-    .login-container h2 {
+    /* ✨ --- Glassmorphism Login Card --- ✨ */
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
       text-align: center;
-      margin-bottom: 30px;
+    }
+
+    .app-logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .login-card h2 {
       font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
     }
 
-    input {
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-field {
       width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0;
-      background-color: transparent;
-      border: 1px solid #999;
-      border-radius: 6px;
-      color: inherit;
-      font-size: 14px;
-      text-align: center;
-      box-sizing: border-box;
+      padding: 14px;
+      background-color: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      font-size: 16px;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    input::placeholder {
-      color: #6d91ac;
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 3px rgba(184, 79, 255, 0.2);
     }
 
-    button {
+    .login-button {
       width: 100%;
-      padding: 10px;
-      background-color: black;
+      padding: 14px;
+      background: var(--primary-gradient);
       color: white;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .login-button:hover {
+      box-shadow: 0 4px 15px rgba(143, 0, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      color: var(--danger-color);
+      font-size: 14px;
       margin-top: 15px;
-    }
-
-    body.dark-theme button {
-      background-color: white;
-      color: black;
-    }
-
-    .error {
-      color: red;
-      font-size: 12px;
-      text-align: center;
-      margin-top: 10px;
+      height: 20px; /* Reserve space to prevent layout shift */
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Welcome</h2>
-    <input type="number" id="roll" placeholder="Roll Number" />
-    <input type="password" id="password" placeholder="Password (ID)" />
-    <button onclick="login()">Login</button>
-    <div id="error" class="error"></div>
+
+  <div class="login-card">
+    <img src="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" alt="App Logo" class="app-logo">
+    <h2>Welcome Back</h2>
+    
+    <div class="input-group">
+      <input type="number" id="userId" class="input-field" placeholder="Student ID" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+    </div>
+    
+    <div class="input-group">
+      <input type="password" id="password" class="input-field" placeholder="Password" />
+    </div>
+
+    <button class="login-button" onclick="login()">Login</button>
+    
+    <div id="error" class="error-message"></div>
   </div>
 
   <script>
-    // Replace with your actual project credentials
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function setCookie(name, value, days) {
       const d = new Date();
@@ -113,40 +190,46 @@
     }
 
     async function login() {
-      const roll = parseInt(document.getElementById('roll').value.trim());
-      const password = parseInt(document.getElementById('password').value.trim());
+      const userId = document.getElementById('userId').value.trim();
+      const password = document.getElementById('password').value.trim();
       const errorDiv = document.getElementById('error');
+      errorDiv.textContent = ""; // Clear previous errors
 
-      if (isNaN(roll) || isNaN(password)) {
-        errorDiv.textContent = "Please enter valid Roll No and Password";
+      if (!userId || !password) {
+        errorDiv.textContent = "Please enter both ID and Password.";
         return;
       }
 
       try {
+        // Updated query to use 'ID' and 'password' columns for authentication
         const { data, error } = await supabase
           .from('BAF')
-          .select('*')
-          .eq('ROLL', roll)
-          .eq('ID', password)
+          .select('*') // Select all columns to get the ROLL number
+          .eq('ID', userId)
+          .eq('password', password)
           .single();
 
         if (error || !data) {
           console.error("Login failed:", error);
-          errorDiv.textContent = "Invalid Roll No or Password";
+          errorDiv.textContent = "Invalid Student ID or Password.";
         } else {
-          setCookie("roll", roll, 100);
+          // IMPORTANT: Set the 'roll' cookie from the successful login data
+          // This ensures the other pages (Home, Profile) will work correctly
+          setCookie("roll", data.ROLL, 100); 
           window.location.href = "https://bafbkbnc.github.io/BAFs/Home.html";
         }
       } catch (e) {
-        console.error("Unexpected error:", e.message || e);
-        errorDiv.textContent = "Error: " + (e.message || "Unknown error");
+        console.error("Unexpected error:", e);
+        errorDiv.textContent = "An unexpected error occurred.";
       }
     }
-
-    // Apply saved theme from localStorage
-    document.addEventListener('DOMContentLoaded', () => {
-      const theme = localStorage.getItem('theme') || 'light';
-      document.body.classList.add(theme + '-theme');
+    
+    // Add event listener to login on 'Enter' key press
+    document.getElementById('password').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission
+            login();
+        }
     });
   </script>
 </body>
