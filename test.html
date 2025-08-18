@@ -191,81 +191,82 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
 
-    async function changePassword() {
-      const userId = document.getElementById('userId').value.trim();
-      const oldPassword = document.getElementById('oldPassword').value.trim();
-      const newPassword = document.getElementById('newPassword').value.trim();
-      const messageDiv = document.getElementById('message');
-      
-      messageDiv.textContent = "";
-      messageDiv.className = "message-area";
+  // Correct: grab createClient from supabase global
+  const { createClient } = supabase;
+  const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      // 1. Input validation
-      if (!userId || !oldPassword || !newPassword) {
-        messageDiv.textContent = "Please fill in all fields.";
-        messageDiv.classList.add("error");
-        return;
-      }
-      if (oldPassword === newPassword) {
-        messageDiv.textContent = "New password cannot be the same as the old one.";
-        messageDiv.classList.add("error");
-        return;
-      }
+  async function changePassword() {
+    const userId = document.getElementById('userId').value.trim();
+    const oldPassword = document.getElementById('oldPassword').value.trim();
+    const newPassword = document.getElementById('newPassword').value.trim();
+    const messageDiv = document.getElementById('message');
 
-      try {
-        // 2. Verify user with ID and OLD password
-        const { data, error } = await supabase
-          .from('BAF')
-          .select('ID') // We only need to confirm the user exists
-          .eq('ID', userId)
-          .eq('password', oldPassword)
-          .single();
+    messageDiv.textContent = "";
+    messageDiv.className = "message-area";
 
-        if (error || !data) {
-          console.error("Verification failed:", error);
-          messageDiv.textContent = "Incorrect Student ID or Old Password.";
-          messageDiv.classList.add("error");
-          return;
-        }
-
-        // 3. If verification is successful, update to the NEW password
-        const { error: updateError } = await supabase
-          .from('BAF')
-          .update({ password: newPassword })
-          .eq('ID', userId);
-
-        if (updateError) {
-          console.error("Update failed:", updateError);
-          messageDiv.textContent = "Failed to update password. Please try again.";
-          messageDiv.classList.add("error");
-        } else {
-          messageDiv.textContent = "Password updated successfully! Redirecting...";
-          messageDiv.classList.add("success");
-          
-          // Redirect to login page after a short delay
-          setTimeout(() => {
-            window.location.href = "login.html";
-          }, 2000);
-        }
-
-      } catch (e) {
-        console.error("Unexpected error:", e);
-        messageDiv.textContent = "An unexpected error occurred.";
-        messageDiv.classList.add("error");
-      }
+    if (!userId || !oldPassword || !newPassword) {
+      messageDiv.textContent = "Please fill in all fields.";
+      messageDiv.classList.add("error");
+      return;
     }
-    
-    // Add event listener to submit on 'Enter' key press in the last field
-    document.getElementById('newPassword').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            changePassword();
-        }
-    });
-  </script>
+    if (oldPassword === newPassword) {
+      messageDiv.textContent = "New password cannot be the same as the old one.";
+      messageDiv.classList.add("error");
+      return;
+    }
+
+    try {
+      // 1. Verify user with ID and OLD password
+      const { data, error } = await client
+        .from('BAF')
+        .select('ID')
+        .eq('ID', userId)
+        .eq('password', oldPassword)
+        .single();
+
+      if (error || !data) {
+        console.error("Verification failed:", error);
+        messageDiv.textContent = "Incorrect Student ID or Old Password.";
+        messageDiv.classList.add("error");
+        return;
+      }
+
+      // 2. Update with NEW password
+      const { error: updateError } = await client
+        .from('BAF')
+        .update({ password: newPassword })
+        .eq('ID', userId);
+
+      if (updateError) {
+        console.error("Update failed:", updateError);
+        messageDiv.textContent = "Failed to update password. Please try again.";
+        messageDiv.classList.add("error");
+      } else {
+        messageDiv.textContent = "Password updated successfully! Redirecting...";
+        messageDiv.classList.add("success");
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      }
+
+    } catch (e) {
+      console.error("Unexpected error:", e);
+      messageDiv.textContent = "An unexpected error occurred.";
+      messageDiv.classList.add("error");
+    }
+  }
+
+  document.getElementById('newPassword').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      changePassword();
+    }
+  });
+</script>
+
 </body>
 </html>
