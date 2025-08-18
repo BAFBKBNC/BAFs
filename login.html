@@ -178,62 +178,58 @@
     <div id="error" class="error-message"></div>
   </div>
 
-  <script>
-    const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
-    
-    // ✅ FIX: Correctly initialize the Supabase client
-    const { createClient } = supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+ <script>
+  const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
+  const SUPABASE_KEY = 'your-public-anon-key-here';
 
-    function setCookie(name, value, days) {
-      const d = new Date();
-      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-      document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+  // ✅ Correct initialization
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+  }
+
+  async function login() {
+    const userId = document.getElementById('userId').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = "";
+
+    if (!userId || !password) {
+      errorDiv.textContent = "Please enter both ID and Password.";
+      return;
     }
 
-    async function login() {
-      const userId = document.getElementById('userId').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const errorDiv = document.getElementById('error');
-      errorDiv.textContent = ""; // Clear previous errors
+    try {
+      const { data, error } = await supabase
+        .from('BAF')
+        .select('*')
+        .eq('ID', userId)
+        .eq('password', password)
+        .single();
 
-      if (!userId || !password) {
-        errorDiv.textContent = "Please enter both ID and Password.";
-        return;
+      if (error || !data) {
+        console.error("Login failed:", error);
+        errorDiv.textContent = "Invalid Student ID or Password.";
+      } else {
+        setCookie("roll", data.ROLL, 100); 
+        window.location.href = "https://bafbkbnc.github.io/BAFs/Home.html";
       }
-
-      try {
-        // Updated query to use 'ID' and 'password' columns for authentication
-        const { data, error } = await supabase
-          .from('BAF')
-          .select('*') // Select all columns to get the ROLL number
-          .eq('ID', userId)
-          .eq('password', password)
-          .single();
-
-        if (error || !data) {
-          console.error("Login failed:", error);
-          errorDiv.textContent = "Invalid Student ID or Password.";
-        } else {
-          // IMPORTANT: Set the 'roll' cookie from the successful login data
-          // This ensures the other pages (Home, Profile) will work correctly
-          setCookie("roll", data.ROLL, 100); 
-          window.location.href = "https://bafbkbnc.github.io/BAFs/Home.html";
-        }
-      } catch (e) {
-        console.error("Unexpected error:", e);
-        errorDiv.textContent = "An unexpected error occurred.";
-      }
+    } catch (e) {
+      console.error("Unexpected error:", e);
+      errorDiv.textContent = "An unexpected error occurred.";
     }
-    
-    // Add event listener to login on 'Enter' key press
-    document.getElementById('password').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission
-            login();
-        }
-    });
-  </script>
+  }
+
+  document.getElementById('password').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      login();
+    }
+  });
+</script>
+
 </body>
 </html>
