@@ -157,6 +157,20 @@
       margin-top: 15px;
       height: 20px; /* Reserve space to prevent layout shift */
     }
+    
+     /* --- New Style for the Link --- */
+    .subtle-link {
+        display: inline-block;
+        margin-top: 20px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .subtle-link:hover {
+        color: var(--primary-accent);
+        text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -176,6 +190,8 @@
     <button class="login-button" onclick="login()">Login</button>
     
     <div id="error" class="error-message"></div>
+    
+    <a href="change-password.html" class="subtle-link">Change Password?</a>
   </div>
 
  <script>
