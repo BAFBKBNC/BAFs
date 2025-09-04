@@ -3,564 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confessions with Replies</title>
+  <title>Confessions</title>
   <style>
-
- /* 🎨 --- Color & Theme Variables --- 🎨 */
     :root {
-      --primary-accent: #b84fff;
-      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
-      --danger-color: #e53935;
-      --font-family: 'Inter', sans-serif;
-      
-      /* Light Theme */
-      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
-      --card-bg-light: rgba(255, 255, 255, 0.9);
-      --text-primary-light: #121212;
-      --text-secondary-light: #5f5f5f;
-      --border-color-light: #e0e0e0;
-      --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
-      --header-bg-light: rgba(255, 255, 255, 0.7);
-
-      /* Dark Theme */
-      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
-      --card-bg-dark: rgba(42, 42, 61, 0.9);
-      --text-primary-dark: #f0f0f0;
-      --text-secondary-dark: #a0a0b0;
-      --border-color-dark: #4a4a6a;
-      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
-      --header-bg-dark: rgba(30, 30, 46, 0.7);
-    }
-    
-    [data-theme="light"] {
-      --bg-gradient: var(--bg-gradient-light);
-      --card-bg: var(--card-bg-light);
-      --text-primary: var(--text-primary-light);
-      --text-secondary: var(--text-secondary-light);
-      --border-color: var(--border-color-light);
-      --shadow: var(--shadow-light);
-      --header-bg: var(--header-bg-light);
-    }
-
-    [data-theme="dark"] {
-      --bg-gradient: var(--bg-gradient-dark);
-      --card-bg: var(--card-bg-dark);
-      --text-primary: var(--text-primary-dark);
-      --text-secondary: var(--text-secondary-dark);
-      --border-color: var(--border-color-dark);
-      --shadow: var(--shadow-dark);
-      --header-bg: var(--header-bg-dark);
-    }
-
-    /* 🧱 --- Base & Reset Styles --- 🧱 */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      height: 100%;
+      --primary-gradient: linear-gradient(135deg, #4a90e2, #243b8f);
+      --card-bg: #ffffff;
+      --card-bg-dark: #1e1e1e;
+      --border-color: #ddd;
+      --border-color-dark: #444;
+      --text-color: #222;
+      --text-color-dark: #eee;
     }
 
     body {
-      font-family: var(--font-family);
-      background: var(--bg-gradient);
-      color: var(--text-primary);
-      transition: background 0.4s ease, color 0.4s ease;
-      overflow-x: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 15px;
+      background: #f4f6fa;
+      color: var(--text-color);
     }
 
-    /* 🔝 --- Glassmorphism Header --- 🔝 */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--header-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid var(--border-color);
-      transition: background 0.4s ease, border-color 0.4s ease;
-    }
-    
-    .top-bar h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-primary);
+    body.dark {
+      background: #121212;
+      color: var(--text-color-dark);
     }
 
-    .menu-toggle, .profile-link {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-    }
-    
-    .profile-img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid var(--primary-accent);
-      object-fit: cover;
-    }
-    
-    .menu-icon {
-      color: var(--text-primary);
-      font-size: 24px;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 22px;
     }
 
-    /* 📱 --- Mobile App-style Sidebar --- 📱 */
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 199;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-    .sidebar-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 280px;
-      height: 100%;
+    .confession-card {
       background: var(--card-bg);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      box-shadow: 2px 0 20px rgba(0,0,0,0.2);
-      transform: translateX(-100%);
-      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar.active {
-      transform: translateX(0);
-    }
-    
-    /* 👤 --- Sidebar Profile Card --- 👤 */
-    .sidebar-profile-card {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 20px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .sidebar-profile-img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 2px solid var(--primary-accent);
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    
-    .sidebar-user-info {
-      overflow: hidden;
-    }
-
-    #sidebar-username {
-        font-weight: 600;
-        font-size: 18px;
-        color: var(--text-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    #sidebar-user-id {
-        font-size: 14px;
-        color: var(--text-secondary);
-    }
-
-    /* 🔗 --- Sidebar Navigation --- 🔗 */
-    .sidebar nav {
-      flex-grow: 1;
-      padding: 10px 0;
-    }
-
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      color: var(--text-primary);
-      text-decoration: none;
-      padding: 15px 20px;
-      font-weight: 500;
-      font-size: 16px;
-      transition: background-color 0.2s, color 0.2s;
-      border-radius: 0 30px 30px 0;
-      margin-right: 10px;
-    }
-
-    .sidebar nav a:hover {
-      background-color: rgba(184, 79, 255, 0.1);
-      color: var(--primary-accent);
-    }
-    
-    .nav-icon {
-        width: 24px;
-        height: 24px;
-        stroke-width: 2;
-    }
-
-    /* 🌙 --- Sun/Moon Theme Switcher --- ☀️ */
-    .sidebar-footer {
-        padding: 20px;
-        margin-top: auto;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    .theme-switch-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      border-radius: 10px;
-      background-color: rgba(128, 128, 128, 0.1);
-      margin-bottom: 15px;
-    }
-    .theme-switch-label {
-      font-weight: 500;
-    }
-    .theme-switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 26px;
-    }
-    .theme-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #4a4a6a;
-      transition: 0.4s;
-      border-radius: 26px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-      z-index: 2;
-    }
-    .slider:after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      left: 6px;
-      width: 16px;
-      height: 16px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-      transition: 0.4s;
-      opacity: 0;
-    }
-    [data-theme="dark"] .slider:after {
-      opacity: 1;
-    }
-    input:checked + .slider {
-      background: var(--primary-gradient);
-    }
-    input:checked + .slider:before {
-      transform: translateX(24px);
-    }
-    input:checked + .slider:after {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'%3E%3C/path%3E%3C/svg%3E");
-      left: auto;
-      right: 6px;
-      opacity: 1;
-    }
-
-    .logout-button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: var(--danger-color);
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    
-    .logout-button:hover {
-        background: #c62828;
-    }
-    
-    /* 📝 --- Main Content & Input Area --- 📝 */
-    .container {
-      padding: 16px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .section-title {
-      text-align: center;
-      font-weight: 600;
-      font-size: 20px;
-      margin: 20px 0;
-      color: var(--text-secondary);
-    }
-    
-    .button-group {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .name-button {
-      background-color: var(--card-bg);
-      color: var(--text-primary);
       border: 1px solid var(--border-color);
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      box-shadow: var(--shadow);
-    }
-    
-    .name-button.selected-name-button {
-      background: var(--primary-gradient);
-      color: white;
-      border-color: transparent;
-      transform: scale(1.05);
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: background 0.3s, border-color 0.3s;
     }
 
-    .input-bar {
-      display: flex;
-      align-items: center;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      padding: 8px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
+    body.dark .confession-card {
+      background: var(--card-bg-dark);
+      border-color: var(--border-color-dark);
     }
 
-    .input-bar input {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text-primary);
-      font-size: 16px;
-      outline: none;
-      padding: 8px;
-    }
-
-    .input-bar button {
-      background: var(--primary-gradient);
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s;
-    }
-    
-    .input-bar button:active {
-        transform: scale(0.9);
-    }
-    
-    .remove_div {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .remove-my-confession {
-      background-color: var(--danger-color);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    /* 💌 --- Confession & Channel Cards --- 💌 */
-    .confession-card, .channel-card {
-        background: var(--card-bg);
-        margin: 16px auto;
-        padding: 16px;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        border: 1px solid var(--border-color);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .confession-card:hover, .channel-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-    
     .card-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    
+
     .card-pic {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      border: 2px solid var(--primary-accent);
-      object-fit: cover;
+      margin-right: 10px;
+      border: 2px solid #ccc;
     }
-    
+
     .card-name {
-      display: flex;
-      align-items: center;
-      gap: 6px;
       font-weight: 600;
-      font-size: 16px;
-    }
-    
-    .confession-message {
-      font-style: italic;
       font-size: 15px;
-      margin: 0;
-      line-height: 1.6;
+    }
+
+    .confession-message {
+      margin: 12px 0;
+      font-size: 15px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* Replies */
+    .reply-section {
+      margin-top: 10px;
+      padding-left: 15px;
+      border-left: 2px solid var(--border-color);
+    }
+
+    body.dark .reply-section {
+      border-color: var(--border-color-dark);
+    }
+
+    .reply-card {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .reply-card img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .reply-card .reply-content {
+      background: #f2f2f2;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-width: 80%;
       word-wrap: break-word;
     }
 
-    .channel-card {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        max-width: 95%;
-    }
-    
-    .channel-link {
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .channel-info {
-        flex: 1;
-    }
-    
-    .channel-title {
-        font-weight: 600;
-        font-size: 17px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .channel-description {
-        font-size: 14px;
-        color: var(--text-secondary);
-    }
-    
-    .encrypted {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin: 30px 0 10px 0;
+    body.dark .reply-card .reply-content {
+      background: #2a2a2a;
     }
 
-    /* 🍞 --- Toast Notifications --- 🍞 */
-    #toast-container {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-    }
-
-    .toast {
-      background: var(--card-bg);
-      color: var(--text-primary);
-      padding: 12px 20px;
+    .reply-input {
+      display: flex;
       margin-top: 10px;
-      border-left: 5px solid var(--primary-accent);
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      font-weight: 500;
-      font-size: 14px;
-      animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s;
+      gap: 6px;
     }
 
-    @keyframes slideInUp {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-
-    
-    body { font-family: Arial, sans-serif; background:#f9f9f9; margin:0; padding:20px; }
-    .confession-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .card-header { display:flex; align-items:center; margin-bottom:10px; }
-    .card-pic { width:40px; height:40px; border-radius:50%; margin-right:10px; }
-    .card-name { font-weight:bold; }
-    .confession-message { margin:10px 0; font-size:15px; }
-    .reply-section { margin-top:10px; padding-left:20px; border-left:2px solid #eee; }
-    .reply-card { display:flex; align-items:flex-start; margin-bottom:8px; }
-    .reply-card img { width:28px; height:28px; border-radius:50%; margin-right:8px; }
-    .reply-card .reply-content { background:#f2f2f2; padding:6px 10px; border-radius:8px; font-size:14px; }
-    .reply-input { display:flex; margin-top:8px; }
     .reply-input input {
-      flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; margin-right:5px;
-    }
-    .reply-input button {
-      padding:6px 12px; border:none; border-radius:6px;
-      background:#4a90e2; color:white; cursor:pointer;
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
     }
 
-    
+    body.dark .reply-input input {
+      background: #1e1e1e;
+      color: var(--text-color-dark);
+      border-color: var(--border-color-dark);
+    }
+
+    .reply-input button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary-gradient);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .reply-input button:active {
+      opacity: 0.85;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .confession-card { padding: 12px; }
+      .card-pic { width: 36px; height: 36px; }
+      .confession-message { font-size: 14px; }
+      .reply-card .reply-content { font-size: 13px; }
+      .reply-input input { font-size: 13px; }
+    }
   </style>
 </head>
 <body>
@@ -571,8 +165,8 @@
   <script>
     // Supabase init
     const client = supabase.createClient(
-      "https://fuovcuzaxfkyqrridrgy.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk"
+      "https://YOUR-PROJECT-REF.supabase.co",
+      "YOUR-ANON-KEY"
     );
 
     // Get cookie helper
@@ -583,7 +177,11 @@
 
     // Fetch confessions
     async function fetchConfessions() {
-      const { data, error } = await client.from("confessions").select("*").order("roll", { ascending: false });
+      const { data, error } = await client
+        .from("confessions")
+        .select("*")
+        .order("roll", { ascending: false });
+
       if (error) { console.error(error); return; }
 
       const list = document.getElementById("confession-list");
@@ -607,7 +205,6 @@
           </div>
         `);
 
-        // load replies for this confession
         fetchReplies(conf.roll);
       });
     }
