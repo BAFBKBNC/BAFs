@@ -1093,14 +1093,15 @@ align-items: center;
     // --- SUPABASE API CALLS ---
 
     // --- [ADDED] New function to fetch channel data from Supabase ---
+    // --- [CORRECTED] New function to fetch channel data from Supabase ---
     async function fetchChannels() {
         const channelList = document.getElementById('channel-list');
         channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
 
         const { data, error } = await client
             .from('Channels') // This must match your table name in Supabase
-            .select('*')
-            .order('id', { ascending: true }); // Optional: order them consistently
+            .select('*');
+            // The .order() line that caused the error has been removed.
 
         if (error) {
             console.error("Error fetching channels:", error);
