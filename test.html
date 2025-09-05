@@ -797,6 +797,47 @@
       background: var(--text-secondary);
       color: white;
     }
+
+/* 💡 Confession Card Glow */
+.confession-card {
+  border-left: 4px solid var(--primary-accent);
+  padding: 20px;
+  animation: fadeUp 0.4s ease;
+}
+.confession-message {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  position: relative;
+  padding-left: 24px;
+}
+.confession-message::before {
+  content: "“";
+  font-size: 24px;
+  position: absolute;
+  left: 0;
+  top: -4px;
+  color: var(--primary-accent);
+  font-weight: bold;
+}
+@keyframes fadeUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 💬 Reply Bubble */
+.reply-card {
+  border-radius: 16px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease;
+}
+.reply-card:nth-child(even) {
+  background: rgba(184,79,255,0.08);
+}
+
   </style>
 </head>
 <body>
@@ -1134,46 +1175,68 @@
         document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
     }
 
-    async function addConfession() {
-        const roll = getCookie("roll");
-        if (!roll) return;
+async function addConfession() {
+    const roll = getCookie("roll");
+    if (!roll) return;
 
-        const message = document.getElementById('messageInput').value.trim();
-        if (!message) {
-            showToast("Please write something!");
-            return;
-        }
-
-        const { data: userData, error: userError } = await client.from('BAF').select('tick, img, NAME, confesses').eq('ROLL', parseInt(roll)).single();
-        if (userError || !userData) {
-            showToast("User fetch failed.");
-            return;
-        }
-
-        let c_name = userData.NAME;
-        let pic = userData.img || '';
-        let tick = userData.tick || '';
-        if (selectedName.toLowerCase() === 'anonymous') {
-            c_name = 'Anonymous';
-            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
-            tick = 'black';
-        }
-
-        const { error: upsertError } = await client.from('confessions').upsert([{
-            roll: parseInt(roll), c_name: c_name, message: message, tick: tick, pic: pic
-        }], { onConflict: ['roll'] });
-
-        if (upsertError) {
-            showToast("Failed to post confession.");
-            console.error("Upsert Error:", upsertError);
-        } else {
-            const newCount = (userData.confesses || 0) + 1;
-            await client.from('BAF').update({ confesses: newCount }).eq('ROLL', parseInt(roll));
-            showToast("Confessed Successfully!");
-            document.getElementById('messageInput').value = '';
-            fetchConfessions();
-        }
+    const message = document.getElementById('messageInput').value.trim();
+    if (!message) {
+        showToast("Please write something!");
+        return;
     }
+
+    // fetch user info
+    const { data: userData, error: userError } = await client
+        .from('BAF')
+        .select('tick, img, NAME, confesses')
+        .eq('ROLL', parseInt(roll))
+        .single();
+
+    if (userError || !userData) {
+        showToast("User fetch failed.");
+        return;
+    }
+
+    let c_name = userData.NAME;
+    let pic = userData.img || '';
+    let tick = userData.tick || '';
+
+    // Anonymous override
+    if (selectedName.toLowerCase() === 'anonymous') {
+        c_name = 'Anonymous';
+        pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+        tick = 'black';
+    }
+
+    // 🗑️ First delete old replies + old confession (if any)
+    await client.from('replies').delete().eq('confession_roll', parseInt(roll));
+    await client.from('confessions').delete().eq('roll', parseInt(roll));
+
+    // ➕ Now insert the fresh confession
+    const { error: insertError } = await client.from('confessions').insert([{
+        roll: parseInt(roll),
+        c_name,
+        message,
+        tick,
+        pic
+    }]);
+
+    if (insertError) {
+        showToast("Failed to post confession.");
+        console.error("Insert Error:", insertError);
+    } else {
+        // update confess count for analytics
+        const newCount = (userData.confesses || 0) + 1;
+        await client.from('BAF')
+            .update({ confesses: newCount })
+            .eq('ROLL', parseInt(roll));
+
+        showToast("Confessed Successfully!");
+        document.getElementById('messageInput').value = '';
+        fetchConfessions(); // refresh list
+    }
+}
+
 
     async function removeMyConfession() {
         hideConfirmModal();
