@@ -17,6 +17,7 @@
   </script>
 
   <style>
+    /* 🎨 --- (Your CSS remains unchanged) --- 🎨 */
     /* 🎨 --- Color & Theme Variables --- 🎨 */
     :root {
       --primary-accent: #b84fff;
@@ -855,7 +856,7 @@ align-items: center;
 </head>
 <body>
 
-  <div id="toast-container"></div>
+  <div id="toast-container"></div>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <aside class="sidebar" id="sidebar">
@@ -977,18 +978,7 @@ align-items: center;
     window.currentConfessionId = null;
     window.currentConfessionRoll = null;
     
-    const channels = [
-        { href: "https://mohitmali5489.github.io/Chats/Attendance_Report.html", icon: "https://i.ibb.co/B5nqq226/Untitled-design-1.png", title: "Attendance Report", desc: "Where Every Day Counts." },
-        { href: "https://mohitmali5489.github.io/Chats/Field_Project.html", icon: "https://iili.io/FUQrBWB.png", title: "Field Project", desc: "Guiding You from Field to File." },
-        { href: "https://mohitmali5489.github.io/Chats/sports.html", icon: "https://t4.ftcdn.net/jpg/03/02/12/83/360_F_302128359_q6aCwgAvdYZBPF4XSwxXddLPE0h3Kor1.jpg", title: "Sports", desc: "Train. Compete. Conquer." },
-        { href: "https://mohitmali5489.github.io/Chats/Big_Data_Analysis.html", icon: "https://i.ibb.co/XxFBDh0T/LJ-1.png", title: "Big Data Analysis", desc: "Insights Through Intelligence." },
-        { href: "https://mohitmali5489.github.io/Chats/Mutual_Fund_Distributor–I.html", icon: "https://i.ibb.co/TXb0tT2/image.png", title: "Mutual Fund Distributor – I", desc: "Guiding Your Wealth, Growing Your Future." },
-        { href: "https://mohitmali5489.github.io/Chats/Subject_Central.html", icon: "https://i.ibb.co/DDHh5W6J/collection-colored-thin-icon-learning-subject-book-graduated-hat-learning-education-concept-vector-i.jpg", title: "Subject Central", desc: "Where Every Subject Meets Clarity" },
-        { href: "https://mohitmali5489.github.io/Chats/Cost_Accounting–I.html", icon: "https://i.ibb.co/352vQrW8/Untitled-design.png", title: "Cost Accounting – I", desc: "Measuring Costs, Maximizing Efficiency." },
-        { href: "https://mohitmali5489.github.io/Chats/Financial_Accounting-III.html", icon: "https://i.ibb.co/0jGdk8kw/10075627.jpg", title: "Financial Accounting - III", desc: "Deepening Insight into Financial Truths." },
-        { href: "https://mohitmali5489.github.io/Chats/Anonymous_Surveys.html", icon: "https://img.freepik.com/free-vector/clip-board-paper-pencil-cartoon-icon-illustration-education-object-icon-concept-isolated-flat-cartoon-style_138676-2152.jpg?semt=ais_hybrid&w=740", title: "Anonymous Surveys", desc: "Real Voices. Real Feedback. 100% Anonymous" },
-        { href: "https://mohitmali5489.github.io/Chats/BAFs-Official.html", icon: "https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png", title: "BAFs Official", desc: "App Related Updates and Features" }
-    ];
+    // --- [REMOVED] The hardcoded 'channels' array was here. ---
 
     // --- UI, THEME & UTILITY FUNCTIONS ---
     function showToast(message) {
@@ -1006,20 +996,22 @@ align-items: center;
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
     
-    function renderChannels() {
+    // --- [MODIFIED] This function now accepts data as a parameter ---
+    function renderChannels(channelsData) {
         const channelList = document.getElementById('channel-list');
         channelList.innerHTML = '';
-        channels.forEach(channel => {
+        channelsData.forEach(channel => {
+            // Note: Property names now match your database columns (name, tagline, img)
             channelList.insertAdjacentHTML('beforeend', `
                 <a href="${channel.href}" class="channel-link">
                     <div class="channel-card">
-                        <img src="${channel.icon}" alt="Channel Icon" class="card-pic">
+                        <img src="${channel.img}" alt="Channel Icon" class="card-pic">
                         <div class="channel-info">
                             <div class="channel-title">
-                                ${channel.title}
+                                ${channel.name}
                                 <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
                             </div>
-                            <div class="channel-description">${channel.desc}</div>
+                            <div class="channel-description">${channel.tagline}</div>
                         </div>
                     </div>
                 </a>
@@ -1099,6 +1091,29 @@ align-items: center;
     }
     
     // --- SUPABASE API CALLS ---
+
+    // --- [ADDED] New function to fetch channel data from Supabase ---
+    // --- [CORRECTED] New function to fetch channel data from Supabase ---
+    async function fetchChannels() {
+        const channelList = document.getElementById('channel-list');
+        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
+
+        const { data, error } = await client
+            .from('Channels') // This must match your table name in Supabase
+            .select('*');
+            // The .order() line that caused the error has been removed.
+
+        if (error) {
+            console.error("Error fetching channels:", error);
+            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
+        } else {
+            renderChannels(data); // Render the fetched channels
+            // Now that channels are on the page, update their links with theme/ID
+            updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
+        }
+    }
+    
+    // --- [MODIFIED] Removed the `updateAllThemeLinks` call from this function ---
     async function fetchUserProfile() {
       const roll = getCookie("roll");
       if (!roll) return;
@@ -1129,7 +1144,8 @@ align-items: center;
 
           window.userId = data.ID;
           window.userRoll = data["ROLL"];
-          updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
+          // The updateAllThemeLinks call was removed from here to prevent a race condition.
+          // It's now called inside fetchChannels() after the links are actually rendered.
       }
     }
 
@@ -1421,7 +1437,7 @@ async function addConfession() {
         }
     }
 
-    // --- INITIALIZATION ---
+    // --- [MODIFIED] INITIALIZATION LOGIC ---
     document.addEventListener("DOMContentLoaded", async () => {
         (function checkLogin() {
             if (!getCookie("roll")) {
@@ -1430,12 +1446,17 @@ async function addConfession() {
         })();
 
         applySavedTheme();
-        renderChannels();
-        
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
 
+        // Fetch user profile first to ensure window.userId is available for other functions
         await fetchUserProfile();
-        await fetchConfessions();
+        
+        // Fetch confessions and channels at the same time for better performance
+        await Promise.all([
+            fetchConfessions(),
+            fetchChannels() // This function now renders channels AND updates their links
+        ]);
+        
         await logUserVisit();
         
         setInterval(fetchConfessions, 30000); // Auto-refresh confessions
