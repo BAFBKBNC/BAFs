@@ -82,7 +82,20 @@
       transition: background 0.4s ease, color 0.4s ease;
       overflow-x: hidden;
     }
-
+header.top-bar {
+margin: 0;
+padding: 12px 16px;
+background: var(--header-bg);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+position: sticky;
+top: 0;
+z-index: 100;
+border-bottom: 1px solid var(--border-color);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
     /* 🔝 --- Glassmorphism Header --- 🔝 */
     .top-bar {
       display: flex;
@@ -439,6 +452,7 @@
         box-shadow: var(--shadow);
         border: 1px solid var(--border-color);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative; /* Added for reply button positioning */
     }
 
     .confession-card:hover, .channel-card:hover {
@@ -475,6 +489,36 @@
       margin: 0;
       line-height: 1.6;
       word-wrap: break-word;
+    }
+    
+    .confession-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 10px;
+    }
+    
+    .confession-footer button {
+        background: none;
+        border: none;
+        color: var(--primary-accent);
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    
+    .confession-footer button:hover {
+        color: #8f00ff;
+    }
+    
+    .reply-count {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-right: 12px;
     }
 
     .channel-card {
@@ -543,12 +587,275 @@
       from { opacity: 1; }
       to { opacity: 0; }
     }
+    
+    /* 💬 --- Reply Modal & Content --- 💬 */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        width: 90%;
+        max-width: 600px;
+        border: 1px solid var(--border-color);
+        position: relative;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--text-secondary);
+        cursor: pointer;
+    }
+    
+    .reply-name-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .reply-name-button {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+    
+    .reply-name-button.selected-name-button {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: transparent;
+      transform: scale(1.05);
+    }
+
+    #replies-container {
+        max-height: 40vh;
+        overflow-y: auto;
+        padding-right: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .reply-card {
+        background: rgba(128, 128, 128, 0.05);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(128, 128, 128, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .reply-card .card-header {
+        margin-bottom: 8px;
+    }
+    
+    .reply-card .confession-message {
+        font-style: normal;
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+    
+    .reply-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 8px;
+    }
+    
+    .reply-delete-btn {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    #reply-input-bar {
+        display: flex;
+        align-items: center;
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: var(--shadow);
+    }
+    
+    #reply-input-bar input {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 16px;
+        outline: none;
+        padding: 8px;
+    }
+    
+    #reply-input-bar button {
+        background: var(--primary-gradient);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+    
+    #reply-input-bar button:active {
+        transform: scale(0.9);
+    }
+    
+    /* Confirmation Modal Styles */
+    #confirm-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .confirm-content {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      width: 90%;
+      max-width: 350px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+    
+    .confirm-content h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    
+    .confirm-content .button-group {
+      display: flex;
+      justify-content: space-around;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .confirm-content button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    #confirm-yes {
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    #confirm-no {
+      background: var(--text-secondary);
+      color: white;
+    }
+
+/* 💡 Confession Card Glow */
+.confession-card {
+  border-left: 4px solid var(--primary-accent);
+  padding: 20px;
+  animation: fadeUp 0.4s ease;
+}
+.confession-message {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  position: relative;
+  padding-left: 24px;
+}
+.confession-message::before {
+  content: "“";
+  font-size: 24px;
+  position: absolute;
+  left: 0;
+  top: -4px;
+  color: var(--primary-accent);
+  font-weight: bold;
+}
+@keyframes fadeUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 💬 Reply Bubble */
+.reply-card {
+  border-radius: 16px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease;
+}
+.reply-card:nth-child(even) {
+  background: rgba(184,79,255,0.08);
+}
 
   </style>
 </head>
 <body>
 
-  <div id="toast-container"></div>
+  <div id="toast-container"></div>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <aside class="sidebar" id="sidebar">
@@ -571,20 +878,18 @@
       <a href="contact-us.html">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         <span>Contact Us</span>
-
+      </a>
       <a href="change-password.html">
         <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
         <span>Change Password</span>
-      </a>
-        
       </a>
     </nav>
     <div class="sidebar-footer">
       <div class="theme-switch-wrapper">
         <span class="theme-switch-label">Theme</span>
         <label class="theme-switch">
-            <input type="checkbox" id="theme-checkbox" />
-            <span class="slider"></span>
+          <input type="checkbox" id="theme-checkbox" />
+          <span class="slider"></span>
         </label>
       </div>
       <button class="logout-button" onclick="logout()">Logout</button>
@@ -615,7 +920,7 @@
     </div>
 
     <div class="remove_div" id="removeDiv" style="display:none;">
-      <button class="remove-my-confession" onclick="removeMyConfession()">Remove my confession</button>
+      <button class="remove-my-confession" onclick="confirmRemove()">Remove my confession</button>
     </div>
 
     <h3 class="section-title">College Confessions</h3>
@@ -628,6 +933,36 @@
 <div class="encrypted">Made with ♥️ by Developer Mohit Mali</div>
   </main>
   
+    <div id="reply-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Replies</h2>
+        <button class="close-button" onclick="closeReplyModal()">&times;</button>
+      </div>
+      <div class="reply-name-group">
+          <button class="reply-name-button selected-name-button" id="reply-anonymous-btn" onclick="selectReplyName(this)">Anonymous</button>
+          <button class="reply-name-button" id="reply-name-btn" onclick="selectReplyName(this)">Loading...</button>
+      </div>
+      <div id="replies-container"></div>
+      <div id="reply-input-bar">
+        <input type="text" id="replyInput" placeholder="Add a reply..."/>
+        <button onclick="addReply()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal">
+    <div class="confirm-content">
+      <h3>Are you sure you want to delete this?</h3>
+      <div class="button-group">
+        <button id="confirm-yes" onclick="removeMyConfession()">Yes, Delete</button>
+        <button id="confirm-no" onclick="hideConfirmModal()">No, Cancel</button>
+      </div>
+    </div>
+  </div>
+  
 <script>
     // --- SUPABASE CLIENT SETUP ---
     const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
@@ -636,7 +971,11 @@
 
     // --- GLOBAL STATE & DATA ---
     let selectedName = "Anonymous";
+    let selectedReplyName = "Anonymous";
     window.userId = null;
+    window.userRoll = null;
+    window.currentConfessionId = null;
+    window.currentConfessionRoll = null;
     
     const channels = [
         { href: "https://mohitmali5489.github.io/Chats/Attendance_Report.html", icon: "https://i.ibb.co/B5nqq226/Untitled-design-1.png", title: "Attendance Report", desc: "Where Every Day Counts." },
@@ -667,6 +1006,27 @@
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
     
+    function renderChannels() {
+        const channelList = document.getElementById('channel-list');
+        channelList.innerHTML = '';
+        channels.forEach(channel => {
+            channelList.insertAdjacentHTML('beforeend', `
+                <a href="${channel.href}" class="channel-link">
+                    <div class="channel-card">
+                        <img src="${channel.icon}" alt="Channel Icon" class="card-pic">
+                        <div class="channel-info">
+                            <div class="channel-title">
+                                ${channel.title}
+                                <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
+                            </div>
+                            <div class="channel-description">${channel.desc}</div>
+                        </div>
+                    </div>
+                </a>
+            `);
+        });
+    }
+
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
       document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -710,25 +1070,32 @@
       selectedName = button.innerText.trim();
     }
     
-    function renderChannels() {
-        const channelList = document.getElementById('channel-list');
-        channelList.innerHTML = '';
-        channels.forEach(channel => {
-            channelList.insertAdjacentHTML('beforeend', `
-                <a href="${channel.href}" class="channel-link">
-                    <div class="channel-card">
-                        <img src="${channel.icon}" alt="Channel Icon" class="card-pic">
-                        <div class="channel-info">
-                            <div class="channel-title">
-                                ${channel.title}
-                                <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
-                            </div>
-                            <div class="channel-description">${channel.desc}</div>
-                        </div>
-                    </div>
-                </a>
-            `);
-        });
+    function selectReplyName(button) {
+      document.querySelectorAll('.reply-name-button').forEach(btn => btn.classList.remove('selected-name-button'));
+      button.classList.add('selected-name-button');
+      selectedReplyName = button.innerText.trim();
+    }
+
+    function openReplyModal(confessionId, confessionRoll) {
+        window.currentConfessionId = confessionId;
+        window.currentConfessionRoll = confessionRoll;
+        document.getElementById('reply-modal').classList.add('active');
+        fetchReplies(confessionId);
+    }
+    
+    function closeReplyModal() {
+        document.getElementById('reply-modal').classList.remove('active');
+        document.getElementById('replyInput').value = '';
+        window.currentConfessionId = null;
+        window.currentConfessionRoll = null;
+    }
+
+    function confirmRemove() {
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function hideConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
     }
     
     // --- SUPABASE API CALLS ---
@@ -738,8 +1105,8 @@
 
       const { data, error } = await client
           .from('BAF')
-          .select('ID, img, NAME, ROLL') 
-          .eq('ROLL', roll)
+          .select('ID, img, NAME, "ROLL"')
+          .eq('ROLL', parseInt(roll))
           .single();
 
       if (error) {
@@ -756,10 +1123,12 @@
           document.getElementById('sidebarProfilePic').src = profilePicUrl;
           document.getElementById('nameButton').innerText = userName;
           document.getElementById('sidebar-username').innerText = userName;
+          document.getElementById('reply-name-btn').innerText = userName;
           
           document.getElementById('sidebar-user-id').innerText = `Student ID: ${studentId}`;
 
           window.userId = data.ID;
+          window.userRoll = data["ROLL"];
           updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
       }
     }
@@ -768,7 +1137,10 @@
         const roll = getCookie("roll");
         const confessionList = document.getElementById('confession-list');
         
-        const { data, error } = await client.from('confessions').select('*');
+        const { data, error } = await client
+            .from('confessions')
+            .select('*')
+            .order('created_at', { ascending: false });
 
         if (error) {
             console.error("Fetch Confessions Error:", error);
@@ -790,6 +1162,8 @@
             const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}">` : '';
             const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
 
+            const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
+            
             confessionList.insertAdjacentHTML('beforeend', `
                 <div class="confession-card">
                     <div class="card-header">
@@ -800,6 +1174,13 @@
                         </div>
                     </div>
                     <p class="confession-message">"${formattedMessage}"</p>
+                    <div class="confession-footer">
+                        ${replyCount}
+                        <button onclick="openReplyModal('${conf.roll}', '${conf.roll}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            Reply
+                        </button>
+                    </div>
                 </div>
             `);
         });
@@ -807,92 +1188,236 @@
         document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
     }
 
-    async function addConfession() {
-        const roll = getCookie("roll");
-        if (!roll) return;
+async function addConfession() {
+    const roll = getCookie("roll");
+    if (!roll) return;
 
-        const message = document.getElementById('messageInput').value.trim();
-        if (!message) {
-            showToast("Please write something!");
-            return;
-        }
-
-        const { data: userData, error: userError } = await client.from('BAF').select('tick, img, confesses').eq('ROLL', roll).single();
-        if (userError || !userData) {
-            showToast("User fetch failed.");
-            return;
-        }
-
-        let pic = userData.img || '';
-        let tick = userData.tick || '';
-        if (selectedName.toLowerCase() === 'anonymous') {
-            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
-            tick = 'black';
-        }
-
-        const { error: upsertError } = await client.from('confessions').upsert([{
-            roll: roll, c_name: selectedName, message: message, tick: tick, pic: pic
-        }], { onConflict: ['roll'] });
-
-        if (upsertError) {
-            showToast("Failed to post confession.");
-            console.error("Upsert Error:", upsertError);
-        } else {
-            const newCount = (userData.confesses || 0) + 1;
-            await client.from('BAF').update({ confesses: newCount }).eq('ROLL', roll);
-            showToast("Confessed Successfully!");
-            document.getElementById('messageInput').value = '';
-            fetchConfessions();
-        }
+    const message = document.getElementById('messageInput').value.trim();
+    if (!message) {
+        showToast("Please write something!");
+        return;
     }
 
+    // fetch user info
+    const { data: userData, error: userError } = await client
+        .from('BAF')
+        .select('tick, img, NAME, confesses')
+        .eq('ROLL', parseInt(roll))
+        .single();
+
+    if (userError || !userData) {
+        showToast("User fetch failed.");
+        return;
+    }
+
+    let c_name = userData.NAME;
+    let pic = userData.img || '';
+    let tick = userData.tick || '';
+
+    // Anonymous override
+    if (selectedName.toLowerCase() === 'anonymous') {
+        c_name = 'Anonymous';
+        pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+        tick = 'black';
+    }
+
+    // 🗑️ First delete old replies + old confession (if any)
+    await client.from('replies').delete().eq('confession_roll', parseInt(roll));
+    await client.from('confessions').delete().eq('roll', parseInt(roll));
+
+    // ➕ Now insert the fresh confession
+    const { error: insertError } = await client.from('confessions').insert([{
+        roll: parseInt(roll),
+        c_name,
+        message,
+        tick,
+        pic
+    }]);
+
+    if (insertError) {
+        showToast("Failed to post confession.");
+        console.error("Insert Error:", insertError);
+    } else {
+        // update confess count for analytics
+        const newCount = (userData.confesses || 0) + 1;
+        await client.from('BAF')
+            .update({ confesses: newCount })
+            .eq('ROLL', parseInt(roll));
+
+        showToast("Confessed Successfully!");
+        document.getElementById('messageInput').value = '';
+        fetchConfessions(); // refresh list
+    }
+}
+
+
     async function removeMyConfession() {
+        hideConfirmModal();
         const roll = getCookie("roll");
         if (!roll) return;
-        const { error } = await client.from('confessions').delete().eq('roll', roll);
+        const { error } = await client.from('confessions').delete().eq('roll', parseInt(roll));
         if (error) showToast("Delete failed.");
         else {
             showToast("Confession Removed.");
             fetchConfessions();
         }
     }
+
+    async function fetchReplies(confessionRoll) {
+        const repliesContainer = document.getElementById('replies-container');
+        repliesContainer.innerHTML = '<p style="text-align:center;color:gray;">Loading replies...</p>';
+        const { data, error } = await client
+            .from('replies')
+            .select('*')
+            .eq('confession_roll', parseInt(confessionRoll))
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error("Fetch Replies Error:", error);
+            repliesContainer.innerHTML = '<p style="text-align:center;color:gray;">Error loading replies.</p>';
+            return;
+        }
+        
+        renderReplies(data);
+    }
     
-    // FIX: Removed the duplicate logUserVisit function. This is the correct one for IST.
+    function renderReplies(replies) {
+        const repliesContainer = document.getElementById('replies-container');
+        repliesContainer.innerHTML = '';
+        if (replies.length === 0) {
+            repliesContainer.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No replies yet.</p>';
+            return;
+        }
+        
+        replies.forEach(reply => {
+            const ticks = {
+                blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
+                silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
+                gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
+                green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
+                black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
+            };
+            const tick = ticks[reply.tick] ? `<img src="${ticks[reply.tick].src}" width="16" title="${ticks[reply.tick].title}">` : '';
+            const formattedMessage = reply.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
+            const isUserReply = reply.roll == window.userRoll;
+            const deleteBtn = isUserReply ? `<button class="reply-delete-btn" onclick="deleteReply(${reply.id})">Delete</button>` : '';
+            
+            repliesContainer.insertAdjacentHTML('beforeend', `
+                <div class="reply-card">
+                    <div class="card-header">
+                        <img src="${reply.pic}" class="card-pic" alt="User picture">
+                        <div class="card-name">
+                            <span>${reply.c_name}</span>
+                            ${tick}
+                        </div>
+                    </div>
+                    <p class="confession-message">"${formattedMessage}"</p>
+                    <div class="reply-card-footer">
+                        ${deleteBtn}
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    async function addReply() {
+        const replyInput = document.getElementById('replyInput');
+        const message = replyInput.value.trim();
+        if (!message || !window.currentConfessionRoll) {
+            showToast("Please write something!");
+            return;
+        }
+
+        const roll = getCookie("roll");
+        if (!roll) return;
+        
+        const { data: userData, error: userError } = await client.from('BAF').select('tick, img, NAME').eq('ROLL', parseInt(roll)).single();
+        if (userError || !userData) {
+            showToast("User fetch failed.");
+            return;
+        }
+
+        let c_name = userData.NAME;
+        let pic = userData.img || '';
+        let tick = userData.tick || '';
+        if (selectedReplyName.toLowerCase() === 'anonymous') {
+            c_name = 'Anonymous';
+            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+            tick = 'black';
+        }
+
+        const { error: insertError } = await client.from('replies').insert([{
+            confession_roll: parseInt(window.currentConfessionRoll),
+            message: message,
+            roll: parseInt(roll),
+            c_name: c_name,
+            pic: pic,
+            tick: tick
+        }]);
+
+        if (insertError) {
+            showToast("Failed to post reply.");
+            console.error("Insert Reply Error:", insertError);
+        } else {
+            showToast("Reply posted!");
+            replyInput.value = '';
+            // Update reply count for the parent confession
+            const { data: confessionData } = await client.from('confessions').select('replies_count').eq('roll', parseInt(window.currentConfessionRoll)).single();
+            const newCount = (confessionData.replies_count || 0) + 1;
+            await client.from('confessions').update({ replies_count: newCount }).eq('roll', parseInt(window.currentConfessionRoll));
+            fetchReplies(window.currentConfessionRoll);
+            fetchConfessions(); // Refresh main list to show updated count
+        }
+    }
+    
+    async function deleteReply(replyId) {
+        hideConfirmModal();
+        
+        const { error } = await client.from('replies').delete().eq('id', replyId).eq('roll', window.userRoll);
+        if (error) {
+            showToast("Failed to delete reply.");
+            console.error("Delete Reply Error:", error);
+        } else {
+            showToast("Reply deleted.");
+            // Decrement reply count for the parent confession
+            const { data: confessionData } = await client.from('confessions').select('replies_count').eq('roll', parseInt(window.currentConfessionRoll)).single();
+            const newCount = Math.max(0, (confessionData.replies_count || 0) - 1);
+            await client.from('confessions').update({ replies_count: newCount }).eq('roll', parseInt(window.currentConfessionRoll));
+            fetchReplies(window.currentConfessionRoll);
+            fetchConfessions(); // Refresh main list to show updated count
+        }
+    }
+    
     async function logUserVisit() {
         const roll = getCookie("roll");
         if (roll) {
-            const name = document.getElementById('nameButton').innerText;
-            if (name && name !== 'Loading...') {
-                
-                // Create a date object with the IST timezone
-                const now = new Date();
-                const options = {
-                    timeZone: 'Asia/Kolkata',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                };
-                
-                // Format the date parts according to IST
-                const formatter = new Intl.DateTimeFormat('en-CA', options);
-                const parts = formatter.formatToParts(now);
-                const dateParts = {};
-                parts.forEach(p => dateParts[p.type] = p.value);
-                
-                // Construct the final ISO-like string with the IST offset
-                const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
+            const { data: userData } = await client.from('BAF').select('NAME').eq('ROLL', parseInt(roll)).single();
+            const name = userData ? userData.NAME : 'Unknown';
+            
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const formatter = new Intl.DateTimeFormat('en-CA', options);
+            const parts = formatter.formatToParts(now);
+            const dateParts = {};
+            parts.forEach(p => dateParts[p.type] = p.value);
+            
+            const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
 
-                const { error } = await client.from('logs').insert([{ 
-                    roll: parseInt(roll), 
-                    Name: name,
-                    time: istTimeString // Send the newly formatted IST string
-                }]);
-                if (error) console.error("Log Error:", error);
-            }
+            const { error } = await client.from('logs').insert([{ 
+                roll: parseInt(roll), 
+                Name: name,
+                time: istTimeString
+            }]);
+            if (error) console.error("Log Error:", error);
         }
     }
 
@@ -905,13 +1430,11 @@
         })();
 
         applySavedTheme();
-        renderChannels(); // Render static content first
+        renderChannels();
         
-        // Add event listeners
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
 
-        // Fetch dynamic content
-        await fetchUserProfile(); // Fetches profile, which sets userId needed for channel links
+        await fetchUserProfile();
         await fetchConfessions();
         await logUserVisit();
         
