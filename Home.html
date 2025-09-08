@@ -899,6 +899,47 @@
           window.userRoll = data["ROLL"];
       }
     }
+
+    /**
+     * Helper function to create the HTML for a single confession card.
+     * This makes it easy to add or update individual cards.
+     * @param {object} conf - The confession data object.
+     * @returns {string} - The HTML string for the confession card.
+     */
+    function createConfessionHTML(conf) {
+        const ticks = {
+            blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
+            silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
+            gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
+            green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
+            black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
+        };
+        const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
+        const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
+        const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
+        
+        return `
+            <div class="confession-card" data-roll="${conf.roll}">
+                <div class="card-header">
+                    <img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy">
+                    <div class="card-name">
+                        <span>${conf.c_name}</span>
+                        ${tick}
+                    </div>
+                </div>
+                <p class="confession-message">${formattedMessage}</p>
+                <div class="confession-footer">
+                    ${replyCount}
+                    <button onclick="toggleReplies(this, '${conf.roll}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        Reply
+                    </button>
+                </div>
+                <div class="replies-wrapper"></div>
+            </div>
+        `;
+    }
+
     async function fetchConfessions() {
         const roll = getCookie("roll");
         const confessionList = document.getElementById('confession-list');
@@ -906,64 +947,44 @@
             .from('confessions')
             .select('*')
             .order('created_at', { ascending: false });
+
         if (error) {
             console.error("Fetch Confessions Error:", error);
             confessionList.innerHTML = '<p style="text-align:center;color:gray;">Error loading confessions!</p>';
             return;
         }
+
         confessionList.innerHTML = '';
         let userHasConfession = data.some(conf => conf.roll == roll);
+        
         data.forEach(conf => {
-            const ticks = {
-                blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
-                silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
-                gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
-                green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
-                black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
-            };
-            const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
-            const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
-            const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
-            confessionList.insertAdjacentHTML('beforeend', `
-                <div class="confession-card">
-                    <div class="card-header">
-                        <img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy">
-                        <div class="card-name">
-                            <span>${conf.c_name}</span>
-                            ${tick}
-                        </div>
-                    </div>
-                    <p class="confession-message">${formattedMessage}</p>
-                    <div class="confession-footer">
-                        ${replyCount}
-                        <button onclick="toggleReplies(this, '${conf.roll}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            Reply
-                        </button>
-                    </div>
-                    <div class="replies-wrapper"></div>
-                </div>
-            `);
+            confessionList.insertAdjacentHTML('beforeend', createConfessionHTML(conf));
         });
+
         document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
     }
+
     async function addConfession() {
         const roll = getCookie("roll");
         if (!roll) return;
+
         const message = document.getElementById('messageInput').value.trim();
         if (!message) {
             showToast("Please write something!");
             return;
         }
+
         const { data: userData, error: userError } = await client
             .from('BAF')
             .select('tick, img, NAME, confesses')
             .eq('ROLL', parseInt(roll))
             .single();
+            
         if (userError || !userData) {
             showToast("User fetch failed.");
             return;
         }
+
         let c_name = userData.NAME;
         let pic = userData.img || '';
         let tick = userData.tick || '';
@@ -972,11 +993,14 @@
             pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
             tick = 'black';
         }
+
         await client.from('replies').delete().eq('confession_roll', parseInt(roll));
         await client.from('confessions').delete().eq('roll', parseInt(roll));
+
         const { error: insertError } = await client.from('confessions').insert([{
             roll: parseInt(roll), c_name, message, tick, pic
         }]);
+
         if (insertError) {
             showToast("Failed to post confession.");
             console.error("Insert Error:", insertError);
@@ -985,22 +1009,24 @@
             await client.from('BAF').update({ confesses: newCount }).eq('ROLL', parseInt(roll));
             showToast("Confessed Successfully!");
             document.getElementById('messageInput').value = '';
-            fetchConfessions();
+            // No need to call fetchConfessions() here, realtime will handle it.
         }
     }
+
     async function removeMyConfession() {
         hideConfirmModal();
         const roll = getCookie("roll");
         if (!roll) return;
         const { error } = await client.from('confessions').delete().eq('roll', parseInt(roll));
-        if (error) showToast("Delete failed.");
-        else {
+        if (error) {
+            showToast("Delete failed.");
+        } else {
             showToast("Confession Removed.");
-            fetchConfessions();
+             // No need to call fetchConfessions() here, realtime will handle it.
         }
     }
 
-    // --- NEW INLINE REPLY FUNCTIONS ---
+    // --- INLINE REPLY FUNCTIONS ---
     async function toggleReplies(button, confessionRoll) {
         const confessionCard = button.closest('.confession-card');
         const repliesWrapper = confessionCard.querySelector('.replies-wrapper');
@@ -1119,7 +1145,7 @@
             const { data: updatedReplies } = await client.from('replies').select('*').eq('confession_roll', parseInt(confessionRoll)).order('created_at', { ascending: true });
             renderRepliesAndInput(repliesWrapper, updatedReplies, confessionRoll);
             
-            fetchConfessions(); // Refresh main list to update reply count display
+            // Realtime will update the main confession card's reply count, so no fetchConfessions() needed.
         }
     }
     
@@ -1140,7 +1166,7 @@
             const { data: updatedReplies } = await client.from('replies').select('*').eq('confession_roll', parseInt(confessionRoll)).order('created_at', { ascending: true });
             renderRepliesAndInput(repliesWrapper, updatedReplies, confessionRoll);
 
-            fetchConfessions(); // Refresh main list to update reply count display
+            // Realtime will update the main confession card's reply count, so no fetchConfessions() needed.
         }
     }
 
@@ -1168,6 +1194,77 @@
         }
     }
 
+    /**
+     * Handles incoming realtime updates from Supabase.
+     * @param {object} payload - The realtime event payload.
+     */
+    function handleRealtimeUpdate(payload) {
+        const confessionList = document.getElementById('confession-list');
+        const roll = getCookie("roll");
+
+        if (payload.eventType === 'INSERT') {
+            const newConfession = payload.new;
+            // Check if the card already exists to prevent duplicates
+            if (!document.querySelector(`.confession-card[data-roll="${newConfession.roll}"]`)) {
+                const newConfessionHTML = createConfessionHTML(newConfession);
+                confessionList.insertAdjacentHTML('afterbegin', newConfessionHTML);
+            }
+            if (newConfession.roll == roll) {
+                document.getElementById('removeDiv').style.display = 'block';
+            }
+        }
+
+        if (payload.eventType === 'DELETE') {
+            const deletedConfession = payload.old;
+            const cardToRemove = document.querySelector(`.confession-card[data-roll="${deletedConfession.roll}"]`);
+            if (cardToRemove) {
+                cardToRemove.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                cardToRemove.style.opacity = '0';
+                cardToRemove.style.transform = 'scale(0.95)';
+                setTimeout(() => cardToRemove.remove(), 500);
+            }
+            if (deletedConfession.roll == roll) {
+                document.getElementById('removeDiv').style.display = 'none';
+            }
+        }
+
+        if (payload.eventType === 'UPDATE') {
+            const updatedConfession = payload.new;
+            const cardToUpdate = document.querySelector(`.confession-card[data-roll="${updatedConfession.roll}"]`);
+            if (cardToUpdate) {
+                // Just update the reply count display
+                const footer = cardToUpdate.querySelector('.confession-footer');
+                let replyCountSpan = footer.querySelector('.reply-count');
+                
+                if (updatedConfession.replies_count > 0) {
+                    if (!replyCountSpan) {
+                        replyCountSpan = document.createElement('span');
+                        replyCountSpan.className = 'reply-count';
+                        footer.insertBefore(replyCountSpan, footer.firstChild);
+                    }
+                    replyCountSpan.textContent = `${updatedConfession.replies_count} ${updatedConfession.replies_count === 1 ? 'Reply' : 'Replies'}`;
+                } else {
+                    if (replyCountSpan) {
+                        replyCountSpan.remove();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Subscribes to realtime changes in the 'confessions' table.
+     */
+    function subscribeToConfessions() {
+        client
+            .channel('public:confessions')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, payload => {
+                console.log('Realtime confession update:', payload);
+                handleRealtimeUpdate(payload);
+            })
+            .subscribe();
+    }
+
     // --- INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", async () => {
         client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1177,17 +1274,21 @@
                 window.location.href = "https://bafbkbnc.github.io/BAFs/login.html";
             }
         })();
+        
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
+        
         await fetchUserProfile();
         await Promise.all([
             fetchConfessions(),
             fetchChannels()
         ]);
+        
         await logUserVisit();
-        setInterval(fetchConfessions, 30000);
+        
+        // Subscribe to realtime updates instead of using setInterval
+        subscribeToConfessions();
     });
 </script>
-
 </body>
 </html>
