@@ -398,6 +398,21 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
+    /* --- Styles for the new banner --- */
+    .banner-container {
+      margin: 20px auto;
+      pointer-events: none; /* Makes the entire container and its content unclickable */
+      -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10+ */
+      user-select: none; /* Standard syntax */
+    }
+    .banner-container img {
+      width: 100%; /* Ensures the image is responsive */
+      height: auto; /* Maintains the aspect ratio */
+      display: block; /* Removes any extra space below the image */
+      border-radius: 12px; /* Optional: adds rounded corners like the cards */
+    }
+    /* ---------------------------------- */
     .card-header {
       display: flex;
       align-items: center;
@@ -675,57 +690,6 @@
     .reply-input-bar-inline button:active {
         transform: scale(0.9);
     }
-
-    /* --- Exam Countdown Timer --- */
-    .exam-countdown-container {
-        display: none; /* Hidden by default, shown by JS */
-        background: var(--card-bg);
-        margin: 30px auto;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        border: 1px solid var(--border-color);
-        text-align: center;
-        opacity: 0;
-        animation: fadeUp 0.5s ease 0.2s forwards;
-    }
-    .exam-countdown-container h3 {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        margin-bottom: 20px;
-    }
-    .timer-wrapper {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-    }
-    .timer-box {
-        background: rgba(128, 128, 128, 0.1);
-        padding: 12px;
-        border-radius: 8px;
-        min-width: 65px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: transform 0.3s ease;
-    }
-    .timer-box:hover {
-        transform: translateY(-3px);
-    }
-    .timer-box .time {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--primary-accent);
-        line-height: 1.2;
-    }
-    .timer-box .label {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-    }
-
   </style>
 </head>
 <body>
@@ -802,27 +766,9 @@
     <div id="confession-list"></div>
     
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
-    
-    <div id="examCountdown" class="exam-countdown-container">
-        <h3>Final Exam Countdown</h3>
-        <div class="timer-wrapper">
-            <div class="timer-box">
-                <span id="days" class="time">00</span>
-                <span class="label">Days</span>
-            </div>
-            <div class="timer-box">
-                <span id="hours" class="time">00</span>
-                <span class="label">Hours</span>
-            </div>
-            <div class="timer-box">
-                <span id="minutes" class="time">00</span>
-                <span class="label">Minutes</span>
-            </div>
-            <div class="timer-box">
-                <span id="seconds" class="time">00</span>
-                <span class="label">Seconds</span>
-            </div>
-        </div>
+
+    <div class="banner-container">
+        <img src="https://i.ibb.co/m5mtH6WR/Hello-1.png" alt="Promotional Banner">
     </div>
     <h3 class="section-title">Channels</h3>
     <div id="channel-list"></div>
@@ -932,54 +878,6 @@
         document.getElementById('confirm-modal').style.display = 'none';
     }
     
-    // --- COUNTDOWN TIMER ---
-    function initializeCountdown() {
-        // !! IMPORTANT: Set your exam date and time here !!
-        // Using the reliable ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
-        const countDownDate = new Date("2025-10-20T09:00:00").getTime();
-        
-        const countdownElement = document.getElementById('examCountdown');
-        const daysEl = document.getElementById('days');
-        const hoursEl = document.getElementById('hours');
-        const minutesEl = document.getElementById('minutes');
-        const secondsEl = document.getElementById('seconds');
-        
-        if (!countdownElement || !daysEl || !hoursEl || !minutesEl || !secondsEl) {
-            console.error("Countdown elements not found!");
-            return;
-        }
-
-        const timer = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
-
-            if (distance < 0) {
-                clearInterval(timer);
-                countdownElement.innerHTML = "<h3>The exam has started. Good luck!</h3>";
-                if (countdownElement.style.display === 'none') {
-                    countdownElement.style.display = 'block';
-                }
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            // Add leading zeros if number is less than 10
-            daysEl.innerText = days < 10 ? '0' + days : days;
-            hoursEl.innerText = hours < 10 ? '0' + hours : hours;
-            minutesEl.innerText = minutes < 10 ? '0' + minutes : minutes;
-            secondsEl.innerText = seconds < 10 ? '0' + seconds : seconds;
-
-            // Make the countdown visible after the first calculation
-            if (countdownElement.style.display === 'none') {
-                countdownElement.style.display = 'block';
-            }
-        }, 1000);
-    }
-
     // --- SUPABASE API CALLS ---
     async function fetchChannels() {
         const channelList = document.getElementById('channel-list');
@@ -1409,9 +1307,6 @@
         
         // Subscribe to realtime updates instead of using setInterval
         subscribeToConfessions();
-
-        // Initialize the exam countdown timer after everything else is set up
-        initializeCountdown();
     });
 </script>
 </body>
