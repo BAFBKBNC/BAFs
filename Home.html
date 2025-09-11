@@ -398,6 +398,36 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
+    /* --- Styles for the new banner --- */
+    .banner-container {
+      position: relative; /* This is crucial for positioning the "Ad" label */
+      margin: 20px auto;
+      pointer-events: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .banner-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+    .ad-label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 12px 0 8px 0; /* Rounds top-left and bottom-right corners */
+      z-index: 1; /* Ensures the label is on top of the image */
+    }
+    /* ---------------------------------- */
     .card-header {
       display: flex;
       align-items: center;
@@ -751,6 +781,11 @@
     <div id="confession-list"></div>
     
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
+
+    <div class="banner-container">
+      <span class="ad-label">Ad</span>
+      <img src="https://i.ibb.co/m5mtH6WR/Hello-1.png" alt="Promotional Banner">
+    </div>
     <h3 class="section-title">Channels</h3>
     <div id="channel-list"></div>
     <div class="encrypted">Made with ♥️ by Developer Mohit Mali</div>
