@@ -19,6 +19,7 @@
         .animated-item {
             opacity: 0;
             transform: translateY(20px);
+            /* Smooth transitions for all animated properties */
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
         .visible {
@@ -27,7 +28,7 @@
         }
     </style>
 </head>
-<body id="page-body" class="bg-[#4C3F91] flex items-center justify-center min-h-screen overflow-hidden">
+<body id="page-body" class="bg-[#b84fff] flex items-center justify-center min-h-screen overflow-hidden">
 
     <div id="transition-container" class="text-center text-white transition-opacity duration-1000 ease-out">
         
@@ -39,7 +40,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
             </div>
-            <h1 id="birlaone" class="animated-item text-5xl md:text-7xl pacifico text-green-300">BirlaOne</h1>
+            <h1 id="birlaone" class="animated-item text-5xl md:text-7xl pacifico">BirlaOne</h1>
         </div>
         
         <!-- Subtitle message -->
@@ -54,7 +55,7 @@
     <script>
         // --- Configuration ---
         const REDIRECT_URL = "https://birlaone.github.io/BirlaOne/index.html";
-        const REDIRECT_DELAY = 6000; // Total time in milliseconds before redirecting
+        const TOTAL_ANIMATION_DURATION = 5000; // Time before fade out begins
 
         // --- Elements ---
         const pageBody = document.getElementById('page-body');
@@ -67,6 +68,10 @@
 
         // --- Animation Sequence ---
         window.addEventListener('load', () => {
+            // Set initial state for text colors before animation starts
+            bafsApp.style.color = 'white';
+            birlaone.style.color = 'white';
+
             // 1. Show "BAFs App"
             setTimeout(() => {
                 bafsApp.classList.add('visible');
@@ -75,32 +80,38 @@
             // 2. Show Arrow
             setTimeout(() => {
                 arrow.classList.add('visible');
-            }, 1000);
+            }, 1200);
 
             // 3. Show "BirlaOne"
             setTimeout(() => {
                 birlaone.classList.add('visible');
-            }, 1500);
+            }, 1900);
 
-            // 4. Change background color and show subtitle
+            // 4. Perform the main theme transition
             setTimeout(() => {
-                pageBody.style.backgroundColor = '#004D40'; // Green theme
+                // Change background
+                pageBody.style.backgroundColor = '#56ab2f';
+                
+                // Show subtitle
                 subtitle.classList.add('visible');
-            }, 2500);
+            }, 2800);
 
-            // 5. Show redirect message
+            // 5. Show the redirect message
             setTimeout(() => {
                 redirectMessage.classList.add('visible');
-            }, 3500);
+            }, 3600);
             
-            // 6. Fade out and redirect
+            // 6. Fade out the container and redirect
             setTimeout(() => {
                 transitionContainer.style.opacity = '0';
+                // Wait for fade-out animation to complete before redirecting
                 setTimeout(() => {
                     window.location.href = REDIRECT_URL;
-                }, 1000); // Wait for fade-out to complete
-            }, REDIRECT_DELAY);
+                }, 1000); 
+            }, TOTAL_ANIMATION_DURATION);
         });
     </script>
 </body>
 </html>
+
+
